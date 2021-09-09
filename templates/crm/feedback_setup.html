@@ -1,0 +1,32 @@
+{% extends 'crm/layout.html' %}
+{% block setmenu %}menu-open{% endblock %}
+{% block set %}active{% endblock set %}
+{% block feeds %}active{% endblock feeds %}
+{% block title %}Feedback Setup{% endblock title %}
+{% block page_title %}Feedback Setup{% endblock page_title %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+    {% if role_perms.change_feeback %}
+    <a href="{% url 'feedback:add-setup' %}" class="btn btn-default">Add Feedback Setup</a>
+    {% endif %}
+        
+    </div>
+    <div class="card-body">
+        <div class="list-group-flush">
+            {% for object in object_list %}
+                <a href="{% url 'feedback:setup-details' object.uuid %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ object.description }}</h5>
+                        <small class="text-muted">{{object.created_at }}</small>
+                    </div>
+                    <!-- <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius
+                        blandit.</p> -->
+                    <small class="text-muted">{{object.get_status_display }}</small>
+                </a>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

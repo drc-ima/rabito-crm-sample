@@ -1,0 +1,139 @@
+{% extends 'marketers/layout.html' %}
+{% load schedule_tags %}
+{% block title %}
+Daily Planner
+{% endblock title %}
+{% block doc %}
+active
+{% endblock doc %}
+{% block page_title %}
+Daily Planner
+{% endblock page_title %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-lg-8 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-9 col-lg-9">
+                        <h5>{{today.date}}</h5>
+                    </div>
+                    <div class="col-md-3 col-lg-3" align="right">
+                        <a href="{% url 'schedule:weekly' %}" class="btn btn-sm btn-default"><span class='h5'>Weekly</span></a> 
+                        <a href="?date={{pdate}}" class="btn btn-default border-0">
+                            <i class="fa fa-1x fa-chevron-left"></i>
+                        </a>
+                        <a href="?date={{ndate}}" class="btn btn-default border-0">
+                            <i class="fa fa-1x fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="card-body">
+                <div class="list-group-flush">
+                    {% for hour in hours %}
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-md-1 col-lg-1 col-sm-2 col-2">
+                                {{hour}}
+                            </div>
+                            <div class="col-md-11 col-lg-11 col-sm-10 col-10">
+                                {% hourly_planners hour today.date user as planners %}
+                                {% for planner in planners.planners %}
+                                    <div class="p-1 m-0 mb-2" style="border-left: 2px dashed rgba(1, 213, 250, 0.705); background-color: lightcyan">
+                                        <a href="{% url 'schedule:details' planner.uuid %}">
+                                            {{planner.description}} - {{planner.start_time}} to {{planner.end_time}}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-4 col-sm-12 bg-white pt-2 mb-5">
+        <div align="center" class="m-5">
+            <i class="fa text-primary fa-9x fa-calendar-plus"></i>
+        </div>
+        <form action="" method="post">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h5><i class="icon fas fa-exclamation-triangle"></i> Error!</h5>
+                {{message}}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <input type="text" name="description" required placeholder="Title" id=""
+                    class="form-control bg-transparent form-control-lg">
+            </div>
+            <div class="form-group">
+                <input type="text" required id="id_date" value="{{today.date | safe}}" name='date' placeholder='Date'
+                    autocomplete="off" data-toggle="datetimepicker" data-target="#id_date"
+                    class="form-control form-control-lg datetimepicker-input">
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" required placeholder='From' value="{{time}}" autocomplete="off"
+                                name='start' id="id_starts" class="form-control form-control-lg datetimepicker-input"
+                                data-toggle="datetimepicker" data-target="#id_starts">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" required placeholder='To' autocomplete="off" name='end' id="id_ends"
+                                class="form-control form-control-lg datetimepicker-input" data-toggle="datetimepicker"
+                                data-target="#id_ends">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Invite Others</label>
+                <select name='members' class="select2 custom-select form-control form-control-lg" multiple="multiple"
+                    data-placeholder="Select people to Invite" style="width: 100%;">
+                    {% for member in members %}
+                    <option value="{{member.uuid}}">{{member.get_full_name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" align="right">
+                <button class="btn-primary btn">Schedule</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}
+{% block js %}
+<script>
+    $(function () {
+        $('[data-mask]').inputmask()
+        //Date picker
+        $('#id_date').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        $('#id_starts').datetimepicker({
+            format: 'HH:mm A'
+        });
+        $('#id_ends').datetimepicker({
+            format: 'HH:mm A'
+        });
+        //Initialize Select2 Elements
+        $('.select2').select2()
+        // $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });
+    });
+
+</script>
+{% endblock js %}

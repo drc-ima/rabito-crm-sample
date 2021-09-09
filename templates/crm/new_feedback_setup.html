@@ -1,0 +1,490 @@
+{% extends 'crm/layout.html' %}
+{% block setmenu %}menu-open{% endblock %}
+{% block set %}active{% endblock set %}
+{% block feeds %}active{% endblock feeds %}
+{% block title %}New Feedback Setup{% endblock title %}
+{% block page_title %}New Feedback Setup{% endblock page_title %}
+{% block content %}
+<div class="card">
+    <form action="" method="post">
+        <div class="card-body">
+
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_desc">Title</label>
+                <input type="text" name="description" required id="id_desc" placeholder="Feedback title"
+                    class="form-control">
+            </div>
+            <hr>
+            <div class="field_wrapper">
+                <div class="form-group">
+                    <label for="id_question_type">1. Question Type</label>
+                    <select name="question_type_1" required id="id_question_type_1" class="custom-select">
+                        <option value="">Select Question Type</option>
+                        <option value="Radio">Radio (Yes or No)</option>
+                        <option value="Scale">Scale</option>
+                        <option value="Fill">Fill In</option>
+                        <option value="Choice">Multiple Choice</option>
+                        <option value="Rating">Rating</option>
+                    </select>
+                </div>
+                <div class="form-group" id="question_1" hidden>
+                    <label for="id_question_1">Question</label>
+                    <textarea name="question_1" id="id_question_1" cols="30" rows="3" class="form-control"></textarea>
+                </div>
+                <div class="form-group" id="scale_count_1" hidden>
+                    <label for="id_scale_1">Scale</label>
+                    <select name="scale_count_1" id="id_scale_count_1" class="custom-select">
+                        <option value="">Select Scale</option>
+                        <option value="5">From One to Five</option>
+                        <option value="10">From One to Ten</option>
+                    </select>
+                </div>
+                <div class="row" id="scale_count_text_1" hidden>
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" name="scale_start_text_1" value="Bad" id="id_scale_start_text_1"
+                                class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" name="scale_middle_text_1" value="Neutral" id="id_scale_middle_text_1"
+                                class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" name="scale_end_text_1" value="Very Good" id="id_scale_end_text_1"
+                                class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" id="choice_1" hidden>
+                    <label for="">Multiple Choice Answers</label>
+                    <div class="row">
+                        <div class="col">
+                            <input type="text" name="answer_one_1" value="Worse" id="id_answer_one_1"
+                                class="form-control">
+                        </div>
+                        <div class="col">
+                            <input type="text" name="answer_two_1" value="Bad" id="id_answer_two_1"
+                                class="form-control">
+                        </div>
+                        <div class="col">
+                            <input type="text" name="answer_three_1" value="Good" id="id_answer_three_1"
+                                class="form-control">
+                        </div>
+                        <div class="col">
+                            <input type="text" name="answer_four_1" value="Better" id="id_answer_four_1"
+                                class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="javascript:void(0);" class="add_button btn btn-primary float-right" title="Add Question"><i
+                    class="fa fa-plus"></i></a>
+
+
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-12">
+                    <a href="{% url 'feedback:setup' %}" class="btn btn-secondary">Cancel</a>
+                    <input type="submit" value="Save and Publish" class="btn btn-primary float-right ml-2">
+                    <input type="submit" value="Save" class="btn btn-success float-right">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock content %}
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function () {
+        var maxField = 5; //Input fields increment limitation
+        var addButton = $('.add_button'); //Add button selector
+        var wrapper = $('.field_wrapper'); //Input field wrapper
+
+        var x = 1; //Initial field counter is 1
+
+        //Once add button is clicked
+        $(addButton).click(function () {
+
+            //Check maximum number of input fields
+            if (x < maxField) {
+
+                x++; //Increment field counter
+                var fieldHTML = '<div class="row mt-4">';
+                fieldHTML += '<div class="col-md-11 col-lg-11">';
+                fieldHTML += '<div class="form-group">';
+                fieldHTML += '<label>' + x + '. Question Type</label>';
+                fieldHTML += '<select name="question_type_' + x + '" required id="id_question_type_' + x + '" class="custom-select">';
+                fieldHTML += '<option value="">Select Question Type</option>';
+                fieldHTML += '<option value="Radio">Radio (Yes or No)</option>';
+                fieldHTML += '<option value="Scale">Scale</option>';
+                fieldHTML += '<option value="Fill">Fill In</option>';
+                fieldHTML += '<option value="Choice">Multiple Choice</option>';
+                fieldHTML += '<option value="Rating">Rating</option>';
+                fieldHTML += '</select>';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                // fieldHTML += '<span class="">';
+                fieldHTML += '<a href="javascript:void(0);" title="Remove Question" style="margin-top:30px; margin-bottom:18px" type="button" class="remove_button btn btn-warning float-left"><i class="fa fa-minus"></i></a>'; //New input field html 
+                // fieldHTML += '</span>';
+                fieldHTML += '<div class="col-12">';
+                fieldHTML += '<div class="form-group" id="question_' + x + '" hidden>';
+                fieldHTML += '<label for="id_question_' + x + ' ">Question</label>';
+                fieldHTML += '<textarea name="question_' + x + '" id="id_question_' + x + '" cols="30" rows="3" class="form-control"></textarea>';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '<div class="col-12">';
+                fieldHTML += '<div class="form-group" id="scale_count_' + x + '" hidden>';
+                fieldHTML += '<label for="id_scale_' + x + '">Scale</label>';
+                fieldHTML += '<select name="scale_count_' + x + '" id="id_scale_count_' + x + '" class="custom-select">';
+                fieldHTML += '<option value="">Select Scale</option>';
+                fieldHTML += '<option value="5">From One to Five</option>';
+                fieldHTML += '<option value="10">From One to Ten</option>';
+                fieldHTML += '</select>';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '<div class="col-12">';
+                fieldHTML += '<div class="row" id="scale_count_text_' + x + '" hidden>';
+                fieldHTML += '<div class="col">';
+                fieldHTML += '<div class="form-group">';
+                fieldHTML += '<input type="text" name="scale_start_text_' + x + '" value="Bad" id="id_scale_start_text_' + x + '" class="form-control">';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '<div class="col">';
+                fieldHTML += '<div class="form-group">';
+                fieldHTML += '<input type="text" name="scale_middle_text_' + x + '" value="Neutral" id="id_scale_middle_text_' + x + '" class="form-control">';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '<div class="col">';
+                fieldHTML += '<div class="form-group">';
+                fieldHTML += '<input type="text" name="scale_end_text_' + x + '" value="Very Good" id="id_scale_end_text_' + x + '" class="form-control">';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '<div class="col-12">';
+                fieldHTML += '<div class="form-group" id="choice_' + x + '" hidden>';
+                fieldHTML += '<label for="">Multiple Choice Answers</label>';
+                fieldHTML += '<div class="row">';
+                fieldHTML += '<div class="col">';
+                fieldHTML += '<input type="text" name="answer_one_' + x + '" value="Worse" id="id_answer_one_' + x + '" class="form-control">';
+                fieldHTML += '</div>';
+                fieldHTML += '<div class="col">';
+                fieldHTML += '<input type="text" name="answer_two_' + x + '" value="Bad" id="id_answer_two_' + x + '" class="form-control">';
+                fieldHTML += '</div>';
+                fieldHTML += '<div class="col">';
+                fieldHTML += '<input type="text" name="answer_three_' + x + '" value="Bad" id="id_answer_three_' + x + '" class="form-control">';
+                fieldHTML += '</div>';
+                fieldHTML += '<div class="col">';
+                fieldHTML += '<input type="text" name="answer_four_' + x + '" value="Bad" id="id_answer_four_' + x + '" class="form-control">';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                fieldHTML += '</div>';
+                $(wrapper).append(fieldHTML); //Add field html
+            }
+
+            // $("#id_question_type_" + x).on('change', function () {
+            //     var val = $(this).val();
+
+            //     if (val === 'Scale') {
+            //         $("#question_" + x).prop('hidden', false);
+            //         $("#scale_count_" + x).prop('hidden', false);
+            //         $("#scale_count_text_" + x).prop('hidden', false);
+            //         $("#choice_" + x).prop('hidden', true);
+            //     }
+            //     else if (val === 'Choice') {
+            //         $("#question_" + x).prop('hidden', false);
+            //         $("#scale_count_" + x).prop('hidden', true);
+            //         $("#scale_count_text_" + x).prop('hidden', true);
+            //         $("#choice_" + x).prop('hidden', false);
+            //     }
+            //     else {
+            //         $("#question_" + x).prop('hidden', false);
+            //         $("#scale_count_" + x).prop('hidden', true);
+            //         $("#scale_count_text_" + x).prop('hidden', true);
+            //         $("#choice_" + x).prop('hidden', true);
+            //     }
+
+            // });
+
+            $("#id_question_type_2").on('change', function () {
+                var val = $(this).val();
+
+                if (val === 'Scale') {
+                    $("#question_2").prop('hidden', false);
+                    $("#id_question_2").prop('required', true);
+                    $("#id_answer_one_2").prop('required', false);
+                    $("#id_answer_two_2").prop('required', false);
+                    $("#id_answer_three_2").prop('required', false);
+                    $("#id_answer_four_2").prop('required', false);
+                    $("#scale_count_2").prop('hidden', false);
+                    $("#id_scale_count_2").prop('required', true);
+                    $("#scale_count_text_2").prop('hidden', false);
+                    $("#id_scale_start_text_2").prop('required', true);
+                    $("#id_scale_middle_text_2").prop('required', true);
+                    $("#id_scale_end_text_2").prop('required', true);
+                    $("#choice_2").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_2").prop('hidden', false);
+                    $("#id_question_2").prop('required', true);
+                    $("#id_answer_one_2").prop('required', true);
+                    $("#id_answer_two_2").prop('required', true);
+                    $("#id_answer_three_2").prop('required', true);
+                    $("#id_answer_four_2").prop('required', true);
+                    $("#scale_count_2").prop('hidden', true);
+                    $("#id_scale_count_2").prop('required', false);
+                    $("#scale_count_text_2").prop('hidden', true);
+                    $("#id_scale_start_text_2").prop('required', false);
+                    $("#id_scale_middle_text_2").prop('required', false);
+                    $("#id_scale_end_text_2").prop('required', false);
+                    $("#choice_2").prop('hidden', false);
+                }
+                else {
+                    $("#question_2").prop('hidden', false);
+                    $("#id_question_2").prop('required', true);
+                    $("#id_answer_one_2").prop('required', false);
+                    $("#id_answer_two_2").prop('required', false);
+                    $("#id_answer_three_2").prop('required', false);
+                    $("#id_answer_four_2").prop('required', false);
+                    $("#scale_count_2").prop('hidden', true);
+                    $("#id_scale_count_2").prop('required', false);
+                    $("#scale_count_text_2").prop('hidden', true);
+                    $("#id_scale_start_text_2").prop('required', false);
+                    $("#id_scale_middle_text_2").prop('required', false);
+                    $("#id_scale_end_text_2").prop('required', false);
+                    $("#choice_2").prop('hidden', true);
+                }
+
+            });
+
+            $("#id_question_type_3").on('change', function () {
+                var val = $(this).val();
+
+                if (val === 'Scale') {
+                    $("#question_3").prop('hidden', false);
+                    $("#id_question_3").prop('required', true);
+                    $("#id_answer_one_3").prop('required', false);
+                    $("#id_answer_two_3").prop('required', false);
+                    $("#id_answer_three_3").prop('required', false);
+                    $("#id_answer_four_3").prop('required', false);
+                    $("#scale_count_3").prop('hidden', false);
+                    $("#id_scale_count_3").prop('required', true);
+                    $("#scale_count_text_3").prop('hidden', false);
+                    $("#id_scale_start_text_3").prop('required', true);
+                    $("#id_scale_middle_text_3").prop('required', true);
+                    $("#id_scale_end_text_3").prop('required', true);
+                    $("#choice_3").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_3").prop('hidden', false);
+                    $("#id_question_3").prop('required', true);
+                    $("#id_answer_one_3").prop('required', true);
+                    $("#id_answer_two_3").prop('required', true);
+                    $("#id_answer_three_3").prop('required', true);
+                    $("#id_answer_four_3").prop('required', true);
+                    $("#scale_count_3").prop('hidden', true);
+                    $("#id_scale_count_3").prop('required', false);
+                    $("#scale_count_text_3").prop('hidden', true);
+                    $("#id_scale_start_text_3").prop('required', false);
+                    $("#id_scale_middle_text_3").prop('required', false);
+                    $("#id_scale_end_text_3").prop('required', false);
+                    $("#choice_3").prop('hidden', false);
+                }
+                else {
+                    $("#question_3").prop('hidden', false);
+                    $("#id_question_3").prop('required', true);
+                    $("#id_answer_one_3").prop('required', false);
+                    $("#id_answer_two_3").prop('required', false);
+                    $("#id_answer_three_3").prop('required', false);
+                    $("#id_answer_four_3").prop('required', false);
+                    $("#scale_count_3").prop('hidden', true);
+                    $("#id_scale_count_3").prop('required', false);
+                    $("#scale_count_text_3").prop('hidden', true);
+                    $("#id_scale_start_text_3").prop('required', false);
+                    $("#id_scale_middle_text_3").prop('required', false);
+                    $("#id_scale_end_text_3").prop('required', false);
+                    $("#choice_3").prop('hidden', true);
+                }
+
+            });
+
+
+            $("#id_question_type_4").on('change', function () {
+                var val = $(this).val();
+
+                if (val === 'Scale') {
+                    $("#question_4").prop('hidden', false);
+                    $("#id_question_4").prop('required', true);
+                    $("#id_answer_one_4").prop('required', false);
+                    $("#id_answer_two_4").prop('required', false);
+                    $("#id_answer_three_4").prop('required', false);
+                    $("#id_answer_four_4").prop('required', false);
+                    $("#scale_count_4").prop('hidden', false);
+                    $("#id_scale_count_4").prop('required', true);
+                    $("#scale_count_text_4").prop('hidden', false);
+                    $("#id_scale_start_text_4").prop('required', true);
+                    $("#id_scale_middle_text_4").prop('required', true);
+                    $("#id_scale_end_text_4").prop('required', true);
+                    $("#choice_4").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_4").prop('hidden', false);
+                    $("#id_question_4").prop('required', true);
+                    $("#id_answer_one_4").prop('required', true);
+                    $("#id_answer_two_4").prop('required', true);
+                    $("#id_answer_three_4").prop('required', true);
+                    $("#id_answer_four_4").prop('required', true);
+                    $("#scale_count_4").prop('hidden', true);
+                    $("#id_scale_count_4").prop('required', false);
+                    $("#scale_count_text_4").prop('hidden', true);
+                    $("#id_scale_start_text_4").prop('required', false);
+                    $("#id_scale_middle_text_4").prop('required', false);
+                    $("#id_scale_end_text_4").prop('required', false);
+                    $("#choice_4").prop('hidden', false);
+                }
+                else {
+                    $("#question_4").prop('hidden', false);
+                    $("#id_question_4").prop('required', true);
+                    $("#id_answer_one_4").prop('required', false);
+                    $("#id_answer_two_4").prop('required', false);
+                    $("#id_answer_three_4").prop('required', false);
+                    $("#id_answer_four_4").prop('required', false);
+                    $("#scale_count_4").prop('hidden', true);
+                    $("#id_scale_count_4").prop('required', false);
+                    $("#scale_count_text_4").prop('hidden', true);
+                    $("#id_scale_start_text_4").prop('required', false);
+                    $("#id_scale_middle_text_4").prop('required', false);
+                    $("#id_scale_end_text_4").prop('required', false);
+                    $("#choice_4").prop('hidden', true);
+                }
+
+            });
+
+
+
+            $("#id_question_type_5").on('change', function () {
+                var val = $(this).val();
+
+                if (val === 'Scale') {
+                    $("#question_5").prop('hidden', false);
+                    $("#id_question_5").prop('required', true);
+                    $("#id_answer_one_5").prop('required', false);
+                    $("#id_answer_two_5").prop('required', false);
+                    $("#id_answer_three_5").prop('required', false);
+                    $("#id_answer_four_5").prop('required', false);
+                    $("#scale_count_5").prop('hidden', false);
+                    $("#id_scale_count_5").prop('required', true);
+                    $("#scale_count_text_5").prop('hidden', false);
+                    $("#id_scale_start_text_5").prop('required', true);
+                    $("#id_scale_middle_text_5").prop('required', true);
+                    $("#id_scale_end_text_5").prop('required', true);
+                    $("#choice_5").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_5").prop('hidden', false);
+                    $("#id_question_5").prop('required', true);
+                    $("#id_answer_one_5").prop('required', true);
+                    $("#id_answer_two_5").prop('required', true);
+                    $("#id_answer_three_5").prop('required', true);
+                    $("#id_answer_four_5").prop('required', true);
+                    $("#scale_count_5").prop('hidden', true);
+                    $("#id_scale_count_5").prop('required', false);
+                    $("#scale_count_text_5").prop('hidden', true);
+                    $("#id_scale_start_text_5").prop('required', false);
+                    $("#id_scale_middle_text_5").prop('required', false);
+                    $("#id_scale_end_text_5").prop('required', false);
+                    $("#choice_5").prop('hidden', false);
+                }
+                else {
+                    $("#question_5").prop('hidden', false);
+                    $("#id_question_5").prop('required', true);
+                    $("#id_answer_one_5").prop('required', false);
+                    $("#id_answer_two_5").prop('required', false);
+                    $("#id_answer_three_5").prop('required', false);
+                    $("#id_answer_four_5").prop('required', false);
+                    $("#scale_count_5").prop('hidden', true);
+                    $("#id_scale_count_5").prop('required', false);
+                    $("#scale_count_text_5").prop('hidden', true);
+                    $("#id_scale_start_text_5").prop('required', false);
+                    $("#id_scale_middle_text_5").prop('required', false);
+                    $("#id_scale_end_text_5").prop('required', false);
+                    $("#choice_5").prop('hidden', true);
+                }
+
+            });
+
+
+
+        });
+
+        //Once remove button is clicked
+        $(wrapper).on('click', '.remove_button', function (e) {
+            e.preventDefault();
+            $(this).parent('div').remove(); //Remove field html
+            x--; //Decrement field counter
+        });
+    });
+
+    $("#id_question_type_1").on('change', function () {
+        var val = $(this).val();
+
+        if (val === 'Scale') {
+            $("#question_1").prop('hidden', false);
+            $("#id_question_1").prop('required', true);
+            $("#id_answer_one_1").prop('required', false);
+            $("#id_answer_two_1").prop('required', false);
+            $("#id_answer_three_1").prop('required', false);
+            $("#id_answer_four_1").prop('required', false);
+            $("#scale_count_1").prop('hidden', false);
+            $("#id_scale_count_1").prop('required', true);
+            $("#scale_count_text_1").prop('hidden', false);
+            $("#id_scale_start_text_1").prop('required', true);
+            $("#id_scale_middle_text_1").prop('required', true);
+            $("#id_scale_end_text_1").prop('required', true);
+            $("#choice_1").prop('hidden', true);
+        }
+        else if (val === 'Choice') {
+            $("#question_1").prop('hidden', false);
+            $("#id_question_1").prop('required', true);
+            $("#id_answer_one_1").prop('required', true);
+            $("#id_answer_two_1").prop('required', true);
+            $("#id_answer_three_1").prop('required', true);
+            $("#id_answer_four_1").prop('required', true);
+            $("#scale_count_1").prop('hidden', true);
+            $("#id_scale_count_1").prop('required', false);
+            $("#scale_count_text_1").prop('hidden', true);
+            $("#id_scale_start_text_1").prop('required', false);
+            $("#id_scale_middle_text_1").prop('required', false);
+            $("#id_scale_end_text_1").prop('required', false);
+            $("#choice_1").prop('hidden', false);
+        }
+        else {
+            $("#question_1").prop('hidden', false);
+            $("#id_question_1").prop('required', true);
+            $("#id_answer_one_1").prop('required', false);
+            $("#id_answer_two_1").prop('required', false);
+            $("#id_answer_three_1").prop('required', false);
+            $("#id_answer_four_1").prop('required', false);
+            $("#scale_count_1").prop('hidden', true);
+            $("#id_scale_count_1").prop('required', false);
+            $("#scale_count_text_1").prop('hidden', true);
+            $("#id_scale_start_text_1").prop('required', false);
+            $("#id_scale_middle_text_1").prop('required', false);
+            $("#id_scale_end_text_1").prop('required', false);
+            $("#choice_1").prop('hidden', true);
+        }
+
+    });
+
+
+
+</script>
+{% endblock js %}

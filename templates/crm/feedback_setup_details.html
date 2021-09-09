@@ -1,0 +1,151 @@
+{% extends 'crm/layout.html' %}
+{% block title %}{{object.description}}{% endblock title %}
+{% block page_title %}{{object.description}}{% endblock page_title %}
+{% block setmenu %}menu-open{% endblock %}
+{% block set %}active{% endblock set %}
+{% block feeds %}active{% endblock feeds %}
+{% block css %}
+<style>
+    .rating {
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: row-reverse;
+    }
+
+    .rating>input {
+        display: none;
+    }
+
+    .rating>label {
+        position: relative;
+        width: 1em;
+        font-size: 2vw;
+        color: #00aeff;
+        cursor: pointer;
+    }
+
+    .rating>label::before {
+        content: "\2605";
+        position: absolute;
+        font-size: 2.1vw;
+        opacity: 0;
+    }
+
+    .rating>label:hover:before,
+    .rating>label:hover~label:before {
+        opacity: 1 !important;
+    }
+
+    .rating>input:checked~label:before {
+        opacity: 1;
+    }
+
+    .rating:hover>input:checked~label:before {
+        opacity: 0.4;
+    }
+</style>
+{% endblock %}
+{% load crm_tags %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-11 col-lg-11">
+                <div class="form-group">
+                    <label for="id_title">Title</label>
+                    <input type="text" name="description" readonly id="id_title" value="{{object.description}}"
+                        class="form-control">
+                </div>
+            </div>
+            <div class="col-md-1 col-lg-1">
+                {% if object.status == 1 or object.status == 3%}
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="Publish" name="submit" class="btn btn-primary" style="margin-top:30px">
+                </form>
+                  {% elif object.status == 2 %}
+                  <form action="" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="Unpublish" name="submit" class="btn btn-warning" style="margin-top:30px">
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <ol type="1" class="list-group-flush">
+            {% for question in questions %}
+            <li class="list-group-item">
+                <label>{{ question.text }}</label>
+                {% if question.question_type == 'Radio' %}
+                <div class="form-group clearfix mt-2">
+                    <div class="icheck-primary d-inline">
+                        <input type="radio" id="radioPrimary1" name="r1">
+                        <label for="radioPrimary1">Yes
+                        </label>
+                    </div>
+                    <div class="icheck-primary d-inline">
+                        <input type="radio" id="radioPrimary2" name="r1">
+                        <label for="radioPrimary2">No
+                        </label>
+                    </div>
+                </div>
+                {% elif question.question_type == 'Scale' %}
+                {% scales question.scale_count as scales%}
+                <div class="form-group mt-2">
+                    <select name="" id="" class="custom-select">
+                        <option value="">Select Choice</option>
+                        {% for scale in scales %}
+                        <option value="{{scale}}">{{scale}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% elif question.question_type == 'Choice' %}
+                <div class="form-group mt-2">
+                    <select name="" id="" class="custom-select">
+                        <option value="">Select Choice</option>
+                        <option value="{{question.choice_answer_one}}">{{question.choice_answer_one}}</option>
+                        <option value="{{question.choice_answer_two}}">{{question.choice_answer_two}}</option>
+                        <option value="{{question.choice_answer_three}}">{{question.choice_answer_three}}</option>
+                        <option value="{{question.choice_answer_four}}">{{question.choice_answer_four}}</option>
+                    </select>
+                </div>
+                {% elif question.question_type == 'Fill' %}
+                <div class="form-group">
+                    <textarea name="" id="" class="form-control" cols="30" rows="3"></textarea>
+                </div>
+                {% elif question.question_type == 'Rating' %}
+                <div class="row">
+                    <div class="col-md-2 col-lg-2">
+                        <div class="form-group">
+                            <!-- <label for="id_rate">Rate this workshop</label> -->
+                            <div class="rating">
+                                <input type="radio" required name="rating_{{question.id}}" value="5"
+                                    id="{{question.id}}_5" class="form-control">
+                                <label for="{{question.id}}_5">
+                                    <i class="far fa-star"></i>
+                                </label>
+                                <input type="radio" required name="rating_{{question.id}}" value="4"
+                                    id="{{question.id}}_4" class="form-control">
+                                <label for="{{question.id}}_4"><i class="far fa-star"></i></label>
+                                <input type="radio" required name="rating_{{question.id}}" value="3"
+                                    id="{{question.id}}_3" class="form-control">
+                                <label for="{{question.id}}_3"><i class="far fa-star"></i></label>
+                                <input type="radio" required name="rating_{{question.id}}" value="2"
+                                    id="{{question.id}}_2" class="form-control">
+                                <label for="{{question.id}}_2"><i class="far fa-star"></i></label>
+                                <input type="radio" required name="rating_{{question.id}}" value="1"
+                                    id="{{question.id}}_1" class="form-control">
+                                <label for="{{question.id}}_1"><i class="far fa-star"></i></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
+            </li>
+            {% endfor %}
+
+        </ol>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,74 @@
+{% extends 'crm/layout.html' %}
+{% block title %}Add Patient{% endblock title %}
+{% block pat %}active{% endblock pat %}
+{% block page_title %}Add Patient{% endblock page_title %}
+{% block content %}
+{% if messages %}
+<div class="alert alert-danger alert-dismissible small">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    <h5><i class="icon fas fa-ban"></i> Error!</h5>
+        {% for message in messages %}
+            {{message}}
+        {% endfor %}
+</div>
+{% endif %}
+<div class="card">
+    <div class="card-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_first_name">First Name:</label>
+                <input type="text" name="first_name" required id="id_first_name" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="id_last_name">Last Name:</label>
+                <input type="text" name="last_name" required id="id_last_name" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="id_dob">Date of Birth:</label>
+                <input type="text" name="date_of_birth" required class="form-control datetimepicker-input" id="id_dob"
+                    data-toggle="datetimepicker" data-target="#id_dob" />
+            </div>
+            <div class="form-group">
+                <label for="id_phone">Phone Number:</label>
+                <div class="input-group">
+                    <input type="text" required id="id_phone" name="phone_number" class="form-control"
+                        data-inputmask="'mask': ['099-999-9999']" data-mask="" inputmode="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="id_email">Email:</label>
+                <input type="email" name="email" required id="id_email" class="form-control">
+            </div>
+            <div class="form-group clearfix">
+                <div class="icheck-success d-inline">
+                    <input type="checkbox" name="is_attending" id="checkboxSuccess3">
+                    <label for="checkboxSuccess3">
+                        Record Attendance
+                    </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <a href="{% url 'patient:search' %}" class="btn btn-secondary">Cancel</a>
+                    <input type="submit" value="Submit" class="btn btn-success float-right">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}
+{% block js %}
+<script>
+    $(function () {
+        $('[data-mask]').inputmask()
+        //Date picker
+        $('#id_dob').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });
+    });
+
+</script>
+{% endblock js %}

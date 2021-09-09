@@ -1,0 +1,115 @@
+{% extends 'crm/layout.html' %}
+{% load crm_tags %}
+{% block title %}Commission Setup Role{% endblock title %}
+{% block page_title %}Commission Setups{%endblock%}
+{% block setmenu %}menu-open{% endblock %}
+{% block set %}active{% endblock set %}
+{% block comms %}active{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        {% if role_perms.view_commissionsetup %}
+        <a href="" data-toggle="modal" data-target="#addComm" class="btn btn-default">Add Commission Setup</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for object in object_list %}
+            {% branch object.branch_code as branch %}
+            <div class="col-md-6 col-lg-6">
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-md-6">{{branch.description}}</div>
+                            <div class="col-md-5" align="right">GHS {{object.figure}}</div>
+                            <div class="col-md-1" align="right">
+                                <a href="" data-toggle="modal" data-target="#editComm{{object.id}}">
+                                    <i class="fa fa-pencil-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="editComm{{object.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Edit Commission Setup</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="comm" value="{{object.id}}">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="id_region">Branch</label>
+                                    <select name="branch_code" required id="id_region" class="custom-select">
+                                        <option value="">Select Branch</option>
+                                        {% for branch in branches %}
+                                        <option value="{{branch.code}}" {% if object.branch_code == branch.code %}selected{% endif %}>{{branch.description}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_desc">Amount</label>
+                                    <input type="number" name="figure" step="0.1" value="{{object.figure}}" required id="id_desc" class="form-control">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <input type="submit" value="Edit" name="submit" class="btn btn-primary">
+                                <input type="submit" value="Delete" name="submit" class="btn btn-danger">
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            No commission setup yet
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="addComm" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Commission Setup</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id_region">Branch</label>
+                        <select name="branch_code" required id="id_region" class="custom-select">
+                            <option value="">Select Branch</option>
+                            {% for branch in branches %}
+                            <option value="{{branch.code}}">{{branch.description}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_desc">Amount</label>
+                        <input type="number" name="figure" step="0.1" required id="id_desc" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" value="Save" name="submit" class="btn btn-primary" />
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

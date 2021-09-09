@@ -1,0 +1,133 @@
+{% extends 'marketers/layout.html' %}
+{% block title %}
+{{object.description}}
+{% endblock title %}
+{% block doc %}
+active
+{% endblock doc %}
+{% block page_title %}
+{{object.description}}
+{% endblock page_title %}
+{% block content %}
+<div class="row">
+    <div class="col-md-10 col-lg-10">
+        <div class="card mb-5">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-10 col-lg-10">
+                        <h4 class='text-primary'>
+                            <i class="fa fa-1x fa-calendar-alt"></i> {{object.activity_date}} at {{object.start_time }}
+                            to {{object.end_time}}
+                        </h4>
+                    </div>
+                    <div class="col-md-2 col-lg-2" align='right'>
+                        <a href="#" data-toggle="modal" data-target="#rescheduleModal">CHANGE</a>
+                    </div>
+                </div>
+                <hr>
+                Scheduled by {{object.created_by}}
+            </div>
+        </div>
+        <h5>Others in this planner</h5>
+        <div class="card mb-5">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td colspan="4">
+                                    <i class="fa fa-user-plus"></i> Invite others
+                                </td>
+                            </tr>
+                            {% for member in object.group.all %}
+                            <tr>
+                                <td>{{member}}</td>
+                                <td>{{member.get_user_type_display}}</td>
+                                <td>{{member.phone_number}}</td>
+                                <td align='right'>
+                                    <a href="">REMOVE</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <h5>Engagments to do with this planner</h5>
+        <div class="card mb-5">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td colspan="4">
+                                    <i class="fa fa-user-plus"></i> Add Engagment
+                                </td>
+                            </tr>
+                            {% for member in engagments %}
+                            <tr>
+                                <td>{{member.full_name}}</td>
+                                <td>{{member.get_engaged_with_display}}</td>
+                                <td>{{member.phone_number}}</td>
+                                <td align='right'>
+                                    <a href="">REMOVE</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">No engagments yet!</td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-lg-6">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <textarea name="text" id="" required cols="30" rows="3" placeholder="Enter comments here"
+                            class="form-control form-control-sm"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" name='submit' value="Comment" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 col-lg-6">
+                <div class="card">
+                    <div class="card-header">Comments</div>
+                    <div class="card-body">
+                        <div class="card-footer card-comments">
+                            {% for comment in object.comments.all %}
+                            <div class="card-comment">
+                                <div class="comment-text">
+                                    <span class="username">
+                                        {{comment.created_by}}
+                                        <span class="text-muted float-right">{{comment.created_at}}</span>
+                                    </span>
+                                    {{comment.text}}
+                                </div>
+                            </div>
+                            {% empty %}
+                            No comments on this planner
+                            {% endfor %}
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

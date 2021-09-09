@@ -1,0 +1,44 @@
+{% extends 'crm/layout.html' %}
+{% block setmenu %}menu-open{% endblock %}
+{% block set %}active{% endblock set %}
+{% block roles %}active{% endblock %}
+{% block title %}User Roles{% endblock title %}
+{% block page_title %}User Roles{% endblock page_title %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+    {% if role_perms.change_role %}
+    <a href="{% url 'user:add-role' %}" class="btn btn-default">Add Role</a>
+    {% endif %}
+    
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th nowrap="nowrap">Role</th>
+                        <th nowrap="nowrap">Permissions</th>
+                        <th nowrap>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in object_list %}
+                        <tr>
+                            <td>{{ role.description }}</td>
+                            <td width="50%" class="text-wrap">
+                                {% for perm in role.permissions.all  %}
+                                    {{ perm.name }},                       
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a href="{% url 'user:update-role' role.id %}" class="btn btn-primary">Update</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

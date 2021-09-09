@@ -1,0 +1,65 @@
+{% extends 'crm/layout.html' %}
+{% block title %}{{title}}{% endblock title %}
+{% block page_title %}{{title}}{% endblock %}
+{% block content %}
+<form action="" method="post">
+    <div class="card">
+        <div class="card-body">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_first">First Name</label>
+                <input type="text" name="first_name" id="id_first" placeholder="First Name" required
+                    class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_last">Last Name</label>
+                <input type="text" name="last_name" id="id_last" placeholder="Last Name" required
+                    class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_email">Email Address</label>
+                <input type="email" name="email" id="id_email" placeholder="Email Address" required
+                    class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_phone">Phone Number</label>
+                <input type="text" name="phone_number" id="id_phone_number" placeholder="Phone Number"
+                    class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_role">Role</label>
+                <select name="role" required id="id_role" class="custom-select">
+                    <option value="">Select Role</option>
+                    {% for role in roles %}
+                    <option value="{{role.id}}">{{role.description}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="id_gender">Gender</label>
+                <select name="gender" id="id_gender" required class="custom-select">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="id_branch">Branch</label>
+                <select name="branch_code" required id="id_branch" class="custom-select">
+                    <option value="">Select Branch</option>
+                    {% for branch in branches %}
+                        <option value="{{branch.code}}">{{branch.description}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <!-- <a href="{% url 'user:roles' %}" class="btn btn-secondary">Cancel</a> -->
+            <!-- <input type="submit" value="Save and Publish" class="btn btn-primary float-right ml-2"> -->
+            <input type="submit" value="Save" class="btn btn-success">
+        </div>
+    </div>
+</form>
+{% endblock content %}

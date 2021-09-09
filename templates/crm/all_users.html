@@ -1,0 +1,64 @@
+{% extends 'crm/layout.html' %}
+{% load crm_tags %}
+{% block title %}All Users{% endblock title %}
+{% block page_title %}All Users{% endblock page_title %}
+{% block accmenu %}menu-open{% endblock %}
+{% block acc %}active{% endblock %}
+{% block all %}active{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="example2" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>User Id</th>
+                        <th>Full Name</th>
+                        <th>User Type</th>
+                        <th>Email</th>
+                        <th>Branch</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                    {% branch object.branch_code as branch %}
+                    <tr>
+                        <td>{{object.code}}</td>
+                        <td>{{object.get_full_name}}</td>
+                        <td>{{object.get_user_type_display}}</td>
+                        <td>{{object.email}}</td>
+                        <td>{{branch.description}}</td>
+                        <td></td>
+                    </tr>
+                    {% empty%}
+                    <tr>
+                        <td colspan="6">Nothing to show here</td>
+                    </tr>
+                    {% endfor %}
+                
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block js %}
+<script>
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
+</script>
+{% endblock js %}

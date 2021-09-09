@@ -1,0 +1,111 @@
+{% extends 'crm/layout.html' %}
+{% block setmenu %}menu-open{% endblock %}
+{% block set %}active{% endblock set %}
+{% block roles %}active{% endblock %}
+{% block title %}Add Role{% endblock title %}
+{% block page_title %}Add Role{% endblock page_title %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_title">Role Title</label>
+                <input type="text" name="description" required id="" class="form-control">
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th>Read</th>
+                            <th>Write</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>User</td>
+                            <td>
+                                <input type="checkbox" name="user.view_user" id="">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="user.change_user" id="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Role</td>
+                            <td>
+                                <input type="checkbox" name="user.view_role" id="">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="user.change_role" id="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Branch</td>
+                            <td>
+                                <input type="checkbox" name="user.view_branch" id="">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="user.change_branch" id="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Patient</td>
+                            <td>
+                                <input type="checkbox" name="patient.view_patient" id="">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="patient.change_patient" id="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Feedback Setup</td>
+                            <td>
+                                <input type="checkbox" name="feedback.view_feedback" id="">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="feedback.change_feedback" id="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Feedback Response</td>
+                            <td>
+                                <input type="checkbox" name="feedback.view_feedbackresponse" id="">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="feedback.change_feedbackresponse" id="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Commission Setup</td>
+                            <td>
+                                <input type="checkbox" name="commission.view_commissionsetup" id="">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="commission.change_commissionsetup" id="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Commission</td>
+                            <td>
+                                <input type="checkbox" name="commission.view_commission" id="">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="commission.change_commission" id="">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <a href="{% url 'user:roles' %}" class="btn btn-secondary">Cancel</a>
+                    <!-- <input type="submit" value="Save and Publish" class="btn btn-primary float-right ml-2"> -->
+                    <input type="submit" value="Save" class="btn btn-success float-right">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

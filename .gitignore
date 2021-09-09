@@ -1,0 +1,8 @@
+.idea/
+*__pycache__/
+.vscode/
+venv/
+rabito_crm/local.py
+*.DS_Store
+static/
+db.sqlite3

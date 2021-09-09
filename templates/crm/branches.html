@@ -1,0 +1,67 @@
+{% extends 'crm/layout.html' %}
+{% load crm_tags %}
+{% block bran %}active{% endblock bran %}
+{% block title %}Branches{% endblock title %}
+{% block page_title %}Branches{% endblock page_title %}
+{% block content %}
+<button class="btn btn-primary" data-toggle="modal" data-target="#addBranch">
+    <i class="fa fa-plus"></i>
+</button>
+<div class="row mt-3">
+    {% for region in regions %}
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">{{region.0}}</div>
+            {% branches region.0 as branches %}
+            <div class="card-body">
+                <div class="list-group-flush">
+                    {% for branch in branches %}
+                    <div class="list-group-item">
+                        {{ branch.code }}. {{branch.description}}
+                    </div>
+                    
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+<div class="modal fade" id="addBranch" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Branch</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id_region">Region</label>
+                        <select name="region" required id="id_region" class="custom-select">
+                            <option value="">Select Region</option>
+                            {% for region in regions %}
+                                <option value="{{region.0}}">{{region.1}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_desc">Branch Name</label>
+                        <input type="text" name="description" required id="id_desc" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

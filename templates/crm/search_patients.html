@@ -1,0 +1,90 @@
+{% extends 'crm/layout.html' %}
+{% block pat %}active{% endblock pat %}
+{% block title %}Search Patient{% endblock title %}
+{% block page_title %}{% endblock page_title %}
+{% block content %}
+<h2 class="text-center display-4">Search Patient</h2>
+<div class="row">
+    <div class="col-md-8 col-lg-8 offset-md-2 offset-lg-1">
+        <form action="">
+            <div class="input-group">
+                <input value="{{search}}" type="search" required autocomplete="off" class="form-control form-control-lg" name="search"
+                    placeholder="Search by first name, last name, phone number, patient id or date of birth (YYYY-MM-DD)">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-lg btn-default">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2 col-lg-1">
+        <a href="{% url 'patient:add' %}" class="btn btn-lg btn-primary"><i class="fa fa-plus"></i></a>
+        <a href="#" class="btn btn-lg btn-dark"><i class="fa fa-tasks"></i></a>
+    </div>
+    <div class="col-md-8 offset-md-2 offset-lg-1">
+        {% if messages %}
+        <div class="alert alert-danger alert-dismissible small mt-3">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <h5><i class="icon fas fa-ban"></i> Error!</h5>
+            {% for message in messages %}
+            {{message}}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if object_list != None %}
+<div class="row mt-3">
+    <div class="col-md-10 offset-md-1">
+        <div class="list-group">
+            {% for object in object_list %}
+            <div class="list-group-item">
+                <div class="row">
+                    <div class="col px-4">
+                        <div>
+                            <div class="float-right">Date of Bith: {{object.date_of_birth}}</div>
+                            <a href="" class="h3">{{object.full_name}}</a>
+                            <ul class="list-unstyled">
+                                <li>
+                                    <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-id-badge"></i>
+                                        {{object.code}}</a>
+                                </li>
+                                <li>
+                                    <a href="" class="btn-link text-secondary"><i class="fa fa-fw fa-phone"></i>
+                                        {{object.phone_number}}</a>
+                                </li>
+                                <li>
+                                    <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-envelope"></i>
+                                        {{object.email}}</a>
+                                </li>
+                                <li>
+                                    <a href="" class="btn-link text-secondary"><i class="fa fa-fw fa-code-branch "></i>
+                                        {{object.branch_code}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="list-group-item">
+                <div class="row">
+                    <div class="col px-4">
+                        <div>
+                            <!-- <div class="float-right">2021-04-20 04:04pm</div> -->
+                            <h3>Nothing found</h3>
+                            <p class="mb-0">Search term did not match any records.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock content %}
