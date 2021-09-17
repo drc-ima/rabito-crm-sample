@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
   <!-- Tempusdominus Bootstrap 4 -->
   <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+  <!-- summernote -->
+  <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
     <!-- DataTables -->
@@ -87,7 +89,7 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
       <a href="" class="brand-link">
-        <img src="{% static 'dist/img/rabito-icon.png' %}" alt="AdminLTE Logo"
+        <img src="{% static 'dist/img/rabito-icon.png' %}" alt="rabito Logo"
           class="brand-image img-circle elevation-3" style="opacity: .8">
         <span class="brand-text font-weight-light">Rabito Marketer</span>
       </a>
@@ -141,7 +143,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="../gallery.html" class="nav-link">
+              <a href="{% url 'marketer:partners' %}" class="nav-link {% block part %}{% endblock %}">
                 <i class="nav-icon far fa-handshake"></i>
                 <p>
                   Partners
@@ -149,7 +151,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="../gallery.html" class="nav-link">
+              <a href="{% url 'marketer:engagements' %}" class="nav-link {% block engage %}{% endblock %}">
                 <i class="nav-icon far fa-address-book"></i>
                 <p>
                   Engagements
@@ -162,6 +164,10 @@
         <!-- /.sidebar-menu -->
       </div>
       <!-- /.sidebar -->
+      <div class="sidebar-custom">
+        <a href="{% url 'logout' %}" class="btn btn-link" title="Logout"><i class="fas nav-icon fa-sign-out-alt"></i></a>
+        {% comment %} <a href="" class="btn btn-secondary hide-on-collapse pos-right">Logout</a> {% endcomment %}
+      </div>
     </aside>
 
     <!-- Content Wrapper. Contains page content -->
@@ -236,7 +242,9 @@
 <script src="{% static '' %}plugins/pdfmake/vfs_fonts.js"></script>
 <script src="{% static '' %}plugins/datatables-buttons/js/buttons.html5.min.js"></script>
 <script src="{% static '' %}plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="{% static '' %}plugins/datatables-buttons/js/buttons.colVis.min.js"></script>    
+<script src="{% static '' %}plugins/datatables-buttons/js/buttons.colVis.min.js"></script> 
+<!-- Summernote -->
+<script src="{% static '' %}plugins/summernote/summernote-bs4.min.js"></script>   
 <!-- AdminLTE App -->
   <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
   <!-- AdminLTE for demo purposes -->

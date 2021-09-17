@@ -1,0 +1,50 @@
+{% extends 'marketers/layout.html' %}
+{% load schedule_tags %}
+{% block title %}
+Partners
+{% endblock title %}
+{% block part %}
+active
+{% endblock %}
+{% block page_title %}
+Partners
+{% endblock page_title %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <a href="{% url 'marketer:add-partner' %}" class="btn btn-default">Add Partner</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Full Name</th>
+                        <th>Workplace</th>
+                        <th>Location</th>
+                        <th>Phone Number</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                        <tr>
+                            <td>{{object.code}}</td>
+                            <td>{{object.partner_user.get_full_name}}</td>
+                            <td>{{object.workplace}}</td>
+                            <td>{{object.location}}</td>
+                            <td>{{object.partner_user.phone_number}}</td>
+                            <td></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan='6'>You have no partners added</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

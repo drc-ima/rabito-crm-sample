@@ -1,3 +1,6 @@
+from django.http.response import JsonResponse
+from apps.partner.models import Coupon, CouponStatus
+from apps.feedback.models import Feedback, FeedbackResponse
 from utils import codes
 from utils.decorators import crm_required, role_permission_required
 from django.contrib.auth.decorators import login_required
@@ -19,6 +22,18 @@ def search(request):
     if request.GET:
         search = request.GET.get('search')
         try:
+            patient = Patient.objects.get(
+                Q(first_name__iexact=search) | 
+                Q(last_name__iexact=search) | 
+                Q(phone_number__iexact=search) | 
+                Q(code=search) |
+                Q(date_of_birth=search if '-' in search else None)
+            )
+
+            return redirect('patient:details', patient.uuid)
+        except Patient.DoesNotExist:
+            pass
+        except Patient.MultipleObjectsReturned:
             patients = Patient.objects.filter(
                 Q(first_name__iexact=search) | 
                 Q(last_name__iexact=search) | 
@@ -40,6 +55,7 @@ def search(request):
 
 @login_required(login_url='user:login')
 @crm_required(redirect_url='permission-error')
+@role_permission_required('change_patient', 'permission-error')
 def add(request):
 
     if request.method == 'POST':
@@ -48,6 +64,7 @@ def add(request):
         date_of_birth = request.POST.get('date_of_birth')
         phone_number = request.POST.get('phone_number').replace('-', '')
         email = request.POST.get('email')
+        coupons = request.POST.getlist('coupons')
         is_attending = request.POST.get('is_attending')
 
         try:
@@ -72,13 +89,118 @@ def add(request):
         )
 
         if is_attending == 'on':
-            Attendance.objects.create(
+            attendance_count = Attendance.objects.filter(patient_code=patient.code).count()
+            att = Attendance.objects.create(
                 patient_code=patient.code,
-                branch_code=patient.branch_code,
-                created_by=request.user
+                branch_code=request.user.branch_code,
+                created_by=request.user,
+                is_first=True if attendance_count < 1 else False
             )
+
+            feedbacks = Feedback.objects.filter(status=2)
+
+            for feedback in feedbacks:
+                FeedbackResponse.objects.create(
+                    patient_id=patient.code,
+                    feedback_code=feedback.code,
+                    branch_code=request.user.branch_code,
+                    attendance=att,
+                )
+
+        if coupons:
+            for c in coupons:
+                try:
+                    coupon = Coupon.objects.get(code=c)
+                    coupon.status = 2
+
+                    CouponStatus.objects.create(
+                        coupon=coupon,
+                        status=2,
+                        created_by=request.user
+                    )
+
+                    coupon.save()
+                except Coupon.DoesNotExist:pass
         
         messages.success(request, f"New Patient ID {patient.code} added.")
         return redirect('patient:search')
 
     return render(request, 'crm/add_patient.html')
+
+
+@login_required(login_url='user:login')
+@crm_required(redirect_url='permission-error')
+def patient_details(request, uuid):
+    patient = None
+
+    try:
+        patient = Patient.objects.get(uuid=uuid)
+    except Patient.DoesNotExist:pass
+
+    attendances = Attendance.objects.filter(patient_code=patient.code)
+
+    feedbacks = FeedbackResponse.objects.filter(patient_id=patient.code)
+
+    coupons = Coupon.objects.filter(patient_first_name__iexact=patient.first_name, patient_last_name__iexact=patient.last_name, patient_phone_number__iexact=patient.phone_number, patient_dob=patient.date_of_birth)
+
+    context = {
+        'object': patient,
+        'attendances': attendances,
+        'feedbacks': feedbacks,
+        'coupons': coupons,
+        'generated_coupons': Coupon.objects.filter(patient_first_name__iexact=patient.first_name, patient_last_name__iexact=patient.last_name, patient_phone_number__iexact=patient.phone_number, patient_dob=patient.date_of_birth, status=1)
+    }
+
+    if request.method == 'POST':
+        submit = request.POST.get('submit')
+
+        if submit == 'Record Attendance':
+            coupons = request.POST.getlist('coupons')
+
+            if coupons:
+                for code in coupons:
+                    try:
+                        coupon = Coupon.objects.get(code=code)
+                        coupon.status = 2
+
+                        cs = CouponStatus.objects.create(
+                            coupon=coupon,
+                            status=2,
+                            created_by=request.user
+                        )
+                        coupon.save()
+                    except Coupon.DoesNotExist:pass
+            
+            na = Attendance.objects.create(
+                patient_code=patient.code,
+                branch_code=request.user.branch_code,
+                is_first=False,
+            )
+
+            feedbacks = Feedback.objects.filter(status=2)
+
+            for feedback in feedbacks:
+                FeedbackResponse.objects.create(
+                    patient_id=patient.code,
+                    feedback_code=feedback.code,
+                    branch_code=request.user.branch_code,
+                    attendance=na,
+                )
+            
+            return redirect('patient:details', uuid)
+
+    return render(request, 'crm/patient_details.html', context)
+
+
+@login_required(login_url='user:login')
+@crm_required(redirect_url='permission-error')
+@role_permission_required("view_patient", "permission-error")
+def patients(request):
+    object_list = Patient.objects.all()
+
+    context = {
+        'object_list': object_list
+    }
+
+    return render(request, 'crm/patients.html', context)
+

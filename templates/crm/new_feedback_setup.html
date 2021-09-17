@@ -17,17 +17,30 @@
             </div>
             <hr>
             <div class="field_wrapper">
-                <div class="form-group">
-                    <label for="id_question_type">1. Question Type</label>
-                    <select name="question_type_1" required id="id_question_type_1" class="custom-select">
-                        <option value="">Select Question Type</option>
-                        <option value="Radio">Radio (Yes or No)</option>
-                        <option value="Scale">Scale</option>
-                        <option value="Fill">Fill In</option>
-                        <option value="Choice">Multiple Choice</option>
-                        <option value="Rating">Rating</option>
-                    </select>
+                <div class="row">
+                    <div class="col-md-10 col-lg-10">
+                        <div class="form-group">
+                            <label for="id_question_type_1">1. Question Type</label>
+                            <select name="question_type_1" required id="id_question_type_1" class="custom-select">
+                                <option value="">Select Question Type</option>
+                                <option value="Radio">Radio (Yes or No)</option>
+                                <option value="Scale">Scale</option>
+                                <option value="Fill">Fill In</option>
+                                <option value="Choice">Multiple Choice</option>
+                                <option value="Rating">Rating</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-lg-2">
+                        <div class="form-group" style="margin-top:40px">
+                            <div class="custom-control custom-switch">
+                              <input type="checkbox" name='required_1' class="custom-control-input" id="id_required_1">
+                              <label class="custom-control-label" for="id_required_1">Required</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
                 <div class="form-group" id="question_1" hidden>
                     <label for="id_question_1">Question</label>
                     <textarea name="question_1" id="id_question_1" cols="30" rows="3" class="form-control"></textarea>
@@ -91,8 +104,8 @@
             <div class="row">
                 <div class="col-12">
                     <a href="{% url 'feedback:setup' %}" class="btn btn-secondary">Cancel</a>
-                    <input type="submit" value="Save and Publish" class="btn btn-primary float-right ml-2">
-                    <input type="submit" value="Save" class="btn btn-success float-right">
+                    <input type="submit" name="submit" value="Save and Publish" class="btn btn-primary float-right ml-2">
+                    <input type="submit" name='submit' value="Save" class="btn btn-success float-right">
                 </div>
             </div>
         </div>
@@ -102,7 +115,7 @@
 {% block js %}
 <script type="text/javascript">
     $(document).ready(function () {
-        var maxField = 5; //Input fields increment limitation
+        var maxField = 10; //Input fields increment limitation
         var addButton = $('.add_button'); //Add button selector
         var wrapper = $('.field_wrapper'); //Input field wrapper
 
@@ -116,19 +129,27 @@
 
                 x++; //Increment field counter
                 var fieldHTML = '<div class="row mt-4">';
-                fieldHTML += '<div class="col-md-11 col-lg-11">';
-                fieldHTML += '<div class="form-group">';
-                fieldHTML += '<label>' + x + '. Question Type</label>';
-                fieldHTML += '<select name="question_type_' + x + '" required id="id_question_type_' + x + '" class="custom-select">';
-                fieldHTML += '<option value="">Select Question Type</option>';
-                fieldHTML += '<option value="Radio">Radio (Yes or No)</option>';
-                fieldHTML += '<option value="Scale">Scale</option>';
-                fieldHTML += '<option value="Fill">Fill In</option>';
-                fieldHTML += '<option value="Choice">Multiple Choice</option>';
-                fieldHTML += '<option value="Rating">Rating</option>';
-                fieldHTML += '</select>';
-                fieldHTML += '</div>';
-                fieldHTML += '</div>';
+                    fieldHTML += '<div class="col-md-9 col-lg-9">';
+                        fieldHTML += '<div class="form-group">';
+                        fieldHTML += '<label>' + x + '. Question Type</label>';
+                        fieldHTML += '<select name="question_type_' + x + '" required id="id_question_type_' + x + '" class="custom-select">';
+                        fieldHTML += '<option value="">Select Question Type</option>';
+                        fieldHTML += '<option value="Radio">Radio (Yes or No)</option>';
+                        fieldHTML += '<option value="Scale">Scale</option>';
+                        fieldHTML += '<option value="Fill">Fill In</option>';
+                        fieldHTML += '<option value="Choice">Multiple Choice</option>';
+                        fieldHTML += '<option value="Rating">Rating</option>';
+                        fieldHTML += '</select>';
+                        fieldHTML += '</div>';
+                    fieldHTML += '</div>';
+                    fieldHTML += '<div class="col-md-2 col-lg-2">';
+                        fieldHTML += '<div class="form-group" style="margin-top:40px">';
+                            fieldHTML += '<div class="custom-control custom-switch">';
+                                fieldHTML += '<input type="checkbox" name="required_' + x + '" class="custom-control-input" id="id_required_' + x + '">';
+                                fieldHTML += '<label class="custom-control-label" for="id_required_'+ x + '">Required</label>';
+                            fieldHTML += '</div>';
+                        fieldHTML += '</div>';
+                    fieldHTML += '</div>';
                 // fieldHTML += '<span class="">';
                 fieldHTML += '<a href="javascript:void(0);" title="Remove Question" style="margin-top:30px; margin-bottom:18px" type="button" class="remove_button btn btn-warning float-left"><i class="fa fa-minus"></i></a>'; //New input field html 
                 // fieldHTML += '</span>';
@@ -368,8 +389,6 @@
 
             });
 
-
-
             $("#id_question_type_5").on('change', function () {
                 var val = $(this).val();
 
@@ -421,7 +440,260 @@
 
             });
 
+            $("#id_question_type_6").on('change', function () {
+                var val = $(this).val();
 
+                if (val === 'Scale') {
+                    $("#question_6").prop('hidden', false);
+                    $("#id_question_6").prop('required', true);
+                    $("#id_answer_one_6").prop('required', false);
+                    $("#id_answer_two_6").prop('required', false);
+                    $("#id_answer_three_6").prop('required', false);
+                    $("#id_answer_four_6").prop('required', false);
+                    $("#scale_count_6").prop('hidden', false);
+                    $("#id_scale_count_6").prop('required', true);
+                    $("#scale_count_text_6").prop('hidden', false);
+                    $("#id_scale_start_text_6").prop('required', true);
+                    $("#id_scale_middle_text_6").prop('required', true);
+                    $("#id_scale_end_text_6").prop('required', true);
+                    $("#choice_6").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_6").prop('hidden', false);
+                    $("#id_question_6").prop('required', true);
+                    $("#id_answer_one_6").prop('required', true);
+                    $("#id_answer_two_6").prop('required', true);
+                    $("#id_answer_three_6").prop('required', true);
+                    $("#id_answer_four_6").prop('required', true);
+                    $("#scale_count_6").prop('hidden', true);
+                    $("#id_scale_count_6").prop('required', false);
+                    $("#scale_count_text_6").prop('hidden', true);
+                    $("#id_scale_start_text_6").prop('required', false);
+                    $("#id_scale_middle_text_6").prop('required', false);
+                    $("#id_scale_end_text_6").prop('required', false);
+                    $("#choice_6").prop('hidden', false);
+                }
+                else {
+                    $("#question_6").prop('hidden', false);
+                    $("#id_question_6").prop('required', true);
+                    $("#id_answer_one_6").prop('required', false);
+                    $("#id_answer_two_6").prop('required', false);
+                    $("#id_answer_three_6").prop('required', false);
+                    $("#id_answer_four_6").prop('required', false);
+                    $("#scale_count_6").prop('hidden', true);
+                    $("#id_scale_count_6").prop('required', false);
+                    $("#scale_count_text_6").prop('hidden', true);
+                    $("#id_scale_start_text_6").prop('required', false);
+                    $("#id_scale_middle_text_6").prop('required', false);
+                    $("#id_scale_end_text_6").prop('required', false);
+                    $("#choice_6").prop('hidden', true);
+                }
+
+            });
+
+            $("#id_question_type_7").on('change', function () {
+                var val = $(this).val();
+
+                if (val === 'Scale') {
+                    $("#question_7").prop('hidden', false);
+                    $("#id_question_7").prop('required', true);
+                    $("#id_answer_one_7").prop('required', false);
+                    $("#id_answer_two_7").prop('required', false);
+                    $("#id_answer_three_7").prop('required', false);
+                    $("#id_answer_four_7").prop('required', false);
+                    $("#scale_count_7").prop('hidden', false);
+                    $("#id_scale_count_7").prop('required', true);
+                    $("#scale_count_text_7").prop('hidden', false);
+                    $("#id_scale_start_text_7").prop('required', true);
+                    $("#id_scale_middle_text_7").prop('required', true);
+                    $("#id_scale_end_text_7").prop('required', true);
+                    $("#choice_7").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_7").prop('hidden', false);
+                    $("#id_question_7").prop('required', true);
+                    $("#id_answer_one_7").prop('required', true);
+                    $("#id_answer_two_7").prop('required', true);
+                    $("#id_answer_three_7").prop('required', true);
+                    $("#id_answer_four_7").prop('required', true);
+                    $("#scale_count_7").prop('hidden', true);
+                    $("#id_scale_count_7").prop('required', false);
+                    $("#scale_count_text_7").prop('hidden', true);
+                    $("#id_scale_start_text_7").prop('required', false);
+                    $("#id_scale_middle_text_7").prop('required', false);
+                    $("#id_scale_end_text_7").prop('required', false);
+                    $("#choice_7").prop('hidden', false);
+                }
+                else {
+                    $("#question_7").prop('hidden', false);
+                    $("#id_question_7").prop('required', true);
+                    $("#id_answer_one_7").prop('required', false);
+                    $("#id_answer_two_7").prop('required', false);
+                    $("#id_answer_three_7").prop('required', false);
+                    $("#id_answer_four_7").prop('required', false);
+                    $("#scale_count_7").prop('hidden', true);
+                    $("#id_scale_count_7").prop('required', false);
+                    $("#scale_count_text_7").prop('hidden', true);
+                    $("#id_scale_start_text_7").prop('required', false);
+                    $("#id_scale_middle_text_7").prop('required', false);
+                    $("#id_scale_end_text_7").prop('required', false);
+                    $("#choice_7").prop('hidden', true);
+                }
+
+            });
+
+            $("#id_question_type_8").on('change', function () {
+                var val = $(this).val();
+
+                if (val === 'Scale') {
+                    $("#question_8").prop('hidden', false);
+                    $("#id_question_8").prop('required', true);
+                    $("#id_answer_one_8").prop('required', false);
+                    $("#id_answer_two_8").prop('required', false);
+                    $("#id_answer_three_8").prop('required', false);
+                    $("#id_answer_four_8").prop('required', false);
+                    $("#scale_count_8").prop('hidden', false);
+                    $("#id_scale_count_8").prop('required', true);
+                    $("#scale_count_text_8").prop('hidden', false);
+                    $("#id_scale_start_text_8").prop('required', true);
+                    $("#id_scale_middle_text_8").prop('required', true);
+                    $("#id_scale_end_text_8").prop('required', true);
+                    $("#choice_8").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_8").prop('hidden', false);
+                    $("#id_question_8").prop('required', true);
+                    $("#id_answer_one_8").prop('required', true);
+                    $("#id_answer_two_8").prop('required', true);
+                    $("#id_answer_three_8").prop('required', true);
+                    $("#id_answer_four_8").prop('required', true);
+                    $("#scale_count_8").prop('hidden', true);
+                    $("#id_scale_count_8").prop('required', false);
+                    $("#scale_count_text_8").prop('hidden', true);
+                    $("#id_scale_start_text_8").prop('required', false);
+                    $("#id_scale_middle_text_8").prop('required', false);
+                    $("#id_scale_end_text_8").prop('required', false);
+                    $("#choice_8").prop('hidden', false);
+                }
+                else {
+                    $("#question_8").prop('hidden', false);
+                    $("#id_question_8").prop('required', true);
+                    $("#id_answer_one_8").prop('required', false);
+                    $("#id_answer_two_8").prop('required', false);
+                    $("#id_answer_three_8").prop('required', false);
+                    $("#id_answer_four_8").prop('required', false);
+                    $("#scale_count_8").prop('hidden', true);
+                    $("#id_scale_count_8").prop('required', false);
+                    $("#scale_count_text_8").prop('hidden', true);
+                    $("#id_scale_start_text_8").prop('required', false);
+                    $("#id_scale_middle_text_8").prop('required', false);
+                    $("#id_scale_end_text_8").prop('required', false);
+                    $("#choice_8").prop('hidden', true);
+                }
+
+            });
+
+            $("#id_question_type_9").on('change', function () {
+                var val = $(this).val();
+
+                if (val === 'Scale') {
+                    $("#question_9").prop('hidden', false);
+                    $("#id_question_9").prop('required', true);
+                    $("#id_answer_one_9").prop('required', false);
+                    $("#id_answer_two_9").prop('required', false);
+                    $("#id_answer_three_9").prop('required', false);
+                    $("#id_answer_four_9").prop('required', false);
+                    $("#scale_count_9").prop('hidden', false);
+                    $("#id_scale_count_9").prop('required', true);
+                    $("#scale_count_text_9").prop('hidden', false);
+                    $("#id_scale_start_text_9").prop('required', true);
+                    $("#id_scale_middle_text_9").prop('required', true);
+                    $("#id_scale_end_text_9").prop('required', true);
+                    $("#choice_9").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_9").prop('hidden', false);
+                    $("#id_question_9").prop('required', true);
+                    $("#id_answer_one_9").prop('required', true);
+                    $("#id_answer_two_9").prop('required', true);
+                    $("#id_answer_three_9").prop('required', true);
+                    $("#id_answer_four_9").prop('required', true);
+                    $("#scale_count_9").prop('hidden', true);
+                    $("#id_scale_count_9").prop('required', false);
+                    $("#scale_count_text_9").prop('hidden', true);
+                    $("#id_scale_start_text_9").prop('required', false);
+                    $("#id_scale_middle_text_9").prop('required', false);
+                    $("#id_scale_end_text_9").prop('required', false);
+                    $("#choice_9").prop('hidden', false);
+                }
+                else {
+                    $("#question_9").prop('hidden', false);
+                    $("#id_question_9").prop('required', true);
+                    $("#id_answer_one_9").prop('required', false);
+                    $("#id_answer_two_9").prop('required', false);
+                    $("#id_answer_three_9").prop('required', false);
+                    $("#id_answer_four_9").prop('required', false);
+                    $("#scale_count_9").prop('hidden', true);
+                    $("#id_scale_count_9").prop('required', false);
+                    $("#scale_count_text_9").prop('hidden', true);
+                    $("#id_scale_start_text_9").prop('required', false);
+                    $("#id_scale_middle_text_9").prop('required', false);
+                    $("#id_scale_end_text_9").prop('required', false);
+                    $("#choice_9").prop('hidden', true);
+                }
+
+            });
+
+            $("#id_question_type_10").on('change', function () {
+                var val = $(this).val();
+
+                if (val === 'Scale') {
+                    $("#question_10").prop('hidden', false);
+                    $("#id_question_10").prop('required', true);
+                    $("#id_answer_one_10").prop('required', false);
+                    $("#id_answer_two_10").prop('required', false);
+                    $("#id_answer_three_10").prop('required', false);
+                    $("#id_answer_four_10").prop('required', false);
+                    $("#scale_count_10").prop('hidden', false);
+                    $("#id_scale_count_10").prop('required', true);
+                    $("#scale_count_text_10").prop('hidden', false);
+                    $("#id_scale_start_text_10").prop('required', true);
+                    $("#id_scale_middle_text_10").prop('required', true);
+                    $("#id_scale_end_text_10").prop('required', true);
+                    $("#choice_10").prop('hidden', true);
+                }
+                else if (val === 'Choice') {
+                    $("#question_10").prop('hidden', false);
+                    $("#id_question_10").prop('required', true);
+                    $("#id_answer_one_10").prop('required', true);
+                    $("#id_answer_two_10").prop('required', true);
+                    $("#id_answer_three_10").prop('required', true);
+                    $("#id_answer_four_10").prop('required', true);
+                    $("#scale_count_10").prop('hidden', true);
+                    $("#id_scale_count_10").prop('required', false);
+                    $("#scale_count_text_10").prop('hidden', true);
+                    $("#id_scale_start_text_10").prop('required', false);
+                    $("#id_scale_middle_text_10").prop('required', false);
+                    $("#id_scale_end_text_10").prop('required', false);
+                    $("#choice_10").prop('hidden', false);
+                }
+                else {
+                    $("#question_10").prop('hidden', false);
+                    $("#id_question_10").prop('required', true);
+                    $("#id_answer_one_10").prop('required', false);
+                    $("#id_answer_two_10").prop('required', false);
+                    $("#id_answer_three_10").prop('required', false);
+                    $("#id_answer_four_10").prop('required', false);
+                    $("#scale_count_10").prop('hidden', true);
+                    $("#id_scale_count_10").prop('required', false);
+                    $("#scale_count_text_10").prop('hidden', true);
+                    $("#id_scale_start_text_10").prop('required', false);
+                    $("#id_scale_middle_text_10").prop('required', false);
+                    $("#id_scale_end_text_10").prop('required', false);
+                    $("#choice_10").prop('hidden', true);
+                }
+
+            });
 
         });
 

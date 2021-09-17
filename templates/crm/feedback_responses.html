@@ -1,0 +1,51 @@
+{% extends 'crm/layout.html' %}
+{% load crm_tags %}
+{% block title %}Feedback Responses{% endblock title %}
+{% block page_title %}Feedback Responses{% endblock page_title %}
+{% block resp %}active{% endblock resp %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table-striped table-hover table">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Attendance Date</th>
+                        <th>Feedback Setup</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                        {% patient object.patient_id as patient %}
+                        {% feedback_setup object.feedback_code as feedback %}
+                        <tr>
+                            <td>{{patient.full_name}}</td>
+                            <td>{{object.attendance.created_at}}</td>
+                            <td>{{feedback.description}}</td>
+                            <td>
+                                {% if object.is_submitted %}
+                                Submitted
+                                {% else %}
+                                Not Submitted
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'feedback:response-details' object.uuid %}" class="btn btn-default btn-sm">
+                                    <i class="fa fa-paper-plane fa-1x"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No feedback response</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

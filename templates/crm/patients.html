@@ -1,0 +1,45 @@
+{% extends 'crm/layout.html' %}
+{% load crm_tags %}
+{% block pat %}active{% endblock pat %}
+{% block title %}Patients{% endblock title %}
+{% block page_title %}Patients{% endblock page_title %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Full Name</th>
+                        <th>Date of Birth</th>
+                        <th>Phone Number</th>
+                        <th>Email</th>
+                        <th>Branch</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                        {% branch object.branch_code as branch %}
+                        <tr>
+                            <td>{{object.code}}</td>
+                            <td>{{object.full_name}}</td>
+                            <td>{{object.date_of_birth}}</td>
+                            <td>{{object.phone_number}}</td>
+                            <td>{{object.email}}</td>
+                            <td>{{branch.description}}</td>
+                            <td>
+                                <a href="{% url 'patient:details' object.uuid %}" class="btn btn-sm btn-default">
+                                    <i class="fa fa-angle-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

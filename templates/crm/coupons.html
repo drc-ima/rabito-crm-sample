@@ -1,0 +1,44 @@
+{% extends 'crm/layout.html' %}
+{% load crm_tags %}
+{% block title %}Coupons{% endblock title %}
+{% block coup %}active{% endblock %}
+{% block page_title %}Coupons{% endblock page_title %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-borderless table-hover">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Partner</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Date of Birth</th>
+                        <th>Commission Due (GHS)</th>
+                        <th>Branch</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                    {% partner object.created_by as partner%}
+                    {% branch object.branch_code as branch%}
+                        <tr>
+                            <td>{{object.code}}</td>
+                            <td>{{partner.workplace}}</td>
+                            <td>{{object.patient_first_name}}</td>
+                            <td>{{object.patient_last_name}}</td>
+                            <td>{{object.patient_dob}}</td>
+                            <td>{{object.commission}}</td>
+                            <td>{{branch.description}}</td>
+                            <td>{{object.get_status_display}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,101 @@
+{% extends 'partners/layout.html' %}
+{% block title %}Coupons{% endblock title %}
+{% block page_title %}Coupons{% endblock page_title %}
+{% block coups %}active{% endblock coups %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <a href="" class="btn btn-default" data-toggle="modal" data-target="#newCoupon">Generate Coupon</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Date of Birth</th>
+                            <th>Phone Number</th>
+                            <th>Commission Due (GHS)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for object in object_list %}
+                        <tr>
+                            <td>{{object.code}}</td>
+                            <td>{{object.patient_first_name}}</td>
+                            <td>{{object.patient_last_name}}</td>
+                            <td>{{object.patient_dob}}</td>
+                            <td>{{object.patient_phone_number}}</td>
+                            <td>{{object.commission}}</td>
+                            <td>{{object.get_status_display}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="newCoupon" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Enter Patient Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id_first">First Name</label>
+                        <input type="text" name="first_name" required placeholder="First Name" id="id_first"
+                            class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_last">Last Name</label>
+                        <input type="text" name="last_name" required placeholder="Last Name" id="id_last"
+                            class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_phone">Phone Number</label>
+                        <input type="text" name="phone_number" required placeholder="Phone Number" id="id_phone"
+                            class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_dob">Date of Birth</label>
+                        <input type="text" name="dob" required placeholder="Date of Birth" id="id_dob"
+                            class="form-control datetimepicker-input" data-toggle="datetimepicker"
+                            data-target="#id_dob">
+                    </div>
+                    <small>Coupons are awarded when details match patients records sent to us</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Generate Coupon</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block js %}
+<script>
+    $(function () {
+        $('[data-mask]').inputmask()
+        //Date picker
+        $('#id_dob').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });
+    });
+
+</script>
+{% endblock js %}

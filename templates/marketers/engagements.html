@@ -1,0 +1,43 @@
+{% extends 'marketers/layout.html' %}
+{% load schedule_tags %}
+{% block title %}
+My Engagements
+{% endblock title %}
+{% block engage %}
+active
+{% endblock %}
+{% block page_title %}
+My Engagements
+{% endblock page_title %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th nowrap>Individual / Company</th>
+                        <th nowrap>Full Name / Company Name</th>
+                        <th nowrap>Contact Person</th>
+                        <th nowrap>Phone Number</th>
+                        <th nowrap>Email</th>
+                        <th nowrap>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                        <tr>
+                            <td nowrap>{{object.get_engaged_with_display}}</td>
+                            <td nowrap>{{object.full_name}}</td>
+                            <td nowrap>{{object.contact_person}}</td>
+                            <td nowrap>{{object.phone_number}}</td>
+                            <td nowrap>{{object.email}}</td>
+                            <td nowrap>{{object.created_at}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

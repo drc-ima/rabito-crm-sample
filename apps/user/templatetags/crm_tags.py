@@ -1,6 +1,8 @@
+from apps.feedback.models import Answer, Feedback
+from apps.patient.models import Patient
 from django import template
 from apps.user.models import *
-
+from apps.partner.models import *
 register = template.Library()
 
 
@@ -16,12 +18,23 @@ def branch(branch_code):
 
 
 @register.simple_tag
+def partner(user):
+    try:
+        return Partner.objects.get(partner_user=user)
+    except Partner.DoesNotExist: return None
+
+
+@register.simple_tag
 def scales(scale):
     froms = []
     for i in range(1, scale+1):
         froms.append(i)
 
-    return froms
+    return {
+        'scales': froms,
+        'first': froms[0],
+        'last': froms[-1],
+    }
 
 
 @register.simple_tag(takes_context=True)
@@ -48,3 +61,26 @@ def role_perm(role, codeperm):
         return 'checked'
     except:
         return ''
+
+
+@register.simple_tag
+def patient(code):
+    try:
+        return Patient.objects.get(code=code)
+    except:
+        return None
+
+
+@register.simple_tag
+def feedback_setup(code):
+    try:
+        return Feedback.objects.get(code=code)
+    except: return None
+
+@register.simple_tag
+def question_answer(response, question):
+    try:
+        answer = Answer.objects.get(response=response, question=question)
+        return answer
+    except Answer.DoesNotExist:
+        return None

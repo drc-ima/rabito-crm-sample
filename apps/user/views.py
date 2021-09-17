@@ -1,3 +1,4 @@
+from apps.partner.models import Coupon, Partner
 from utils import codes
 from django.http.response import HttpResponse
 from utils.decorators import crm_required, role_permission_required
@@ -57,12 +58,12 @@ def permission_error(request):
     elif request.user.user_type == 'PU':
         return render(request, 'partners/permission_error.html')
     else:
-        return render(request, 'markets/permission_error.html')
+        return render(request, 'marketers/permission_error.html')
 
 
 def user_login(request):
     if request.user.is_authenticated:
-        return redirect('user:dashboard') if request.user.user_type == 'AD' else redirect('marketer:dashboard')
+        return redirect('user:dashboard') if request.user.user_type == 'AD' else redirect('marketer:dashboard') if request.user.user_type == 'MU' or request.user.user_type == 'MAU' else redirect('partner:dashboard')
 
     context = {
         'username': '',
@@ -90,9 +91,9 @@ def user_login(request):
             if user is None:
                 messages.error(request, 'Credentials do not match')
                 return redirect('login')
-            elif user and user.user_type == 'PU':
-                messages.error(request, 'You do not have permission to login here')
-                return redirect('login')
+            # elif user and user.user_type == 'PU':
+            #     messages.error(request, 'You do not have permission to login here')
+            #     return redirect('login')
             elif user and not user.is_active:
                 messages.error(request, 'Your account has been block. Please contact admin')
                 return redirect('login')
@@ -128,7 +129,7 @@ def user_login(request):
 
             redirect_url = redirect_to if url_is_safe else ''
 
-            return redirect(redirect_url) if redirect_url else redirect('user:dashboard') if user.user_type == 'AD' else redirect('marketer:dashboard')
+            return redirect(redirect_url) if redirect_url else redirect('user:dashboard') if user.user_type == 'AD' else redirect('marketer:dashboard') if user.user_type == 'MU' or user.user_type == 'MAU' else redirect('partner:dashboard')
 
         except:
             messages.error(request, 'Something went wrong!')
@@ -620,13 +621,33 @@ def add_user(request):
             phone_number=phone_number,
             gender=gender,
             branch_code=branch_code,
-            role_id=role_id,
+            # role_id=role_id,
             slug="-".join([slugify(first_name), slugify(last_name)])
         )
+
+        if user_type == 'AD':
+            nu.role_id = role_id
 
         nu.set_password('password')
 
         nu.save()
+
+        if user_type == 'PU':
+            workplace = request.POST.get('workplace')
+            location = request.POST.get('location')
+
+            count = Partner.objects.count() + 1
+
+            code = codes.partner('{0:03}'.format(count), workplace)
+
+            np = Partner.objects.create(
+                code=code,
+                partner_user=nu,
+                workplace=workplace,
+                created_by=request.user,
+                location=location,
+                branch_code=request.user.branch_code,
+            )
 
         return redirect('user:admins') if user_type == 'AD' else redirect('user:marketers')
 
@@ -637,10 +658,21 @@ def add_user(request):
 def user_logout(request):
 
     redirect_to = None
-    if request.user.user_type =='AD' or request.user_type == 'MU':
+    if request.user.user_type =='AD' or request.user.user_type == 'MU':
         redirect_to = redirect('login')
     logout(request)
 
     return redirect_to
 
-    
+
+@login_required(login_url='login')
+@crm_required(redirect_url='permission-error')
+@role_permission_required("view_coupon", 'permission-error')
+def coupons(request):
+    object_list = Coupon.objects.all()
+
+    context = {
+        'object_list': object_list,
+    }
+
+    return render(request, 'crm/coupons.html', context)

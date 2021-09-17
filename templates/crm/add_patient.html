@@ -3,15 +3,6 @@
 {% block pat %}active{% endblock pat %}
 {% block page_title %}Add Patient{% endblock page_title %}
 {% block content %}
-{% if messages %}
-<div class="alert alert-danger alert-dismissible small">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <h5><i class="icon fas fa-ban"></i> Error!</h5>
-        {% for message in messages %}
-            {{message}}
-        {% endfor %}
-</div>
-{% endif %}
 <div class="card">
     <div class="card-body">
         <form action="" method="post">
@@ -40,7 +31,9 @@
                 <label for="id_email">Email:</label>
                 <input type="email" name="email" required id="id_email" class="form-control">
             </div>
-            <div class="form-group clearfix">
+            <button id="check_coupon" type="button" class="btn-sm mb-2 btn btn-info">Check for Coupons </button> <span id="id_error" class="text-danger"></span>
+            <div id='coupons'></div>
+            <div class="form-group clearfix mt-2">
                 <div class="icheck-success d-inline">
                     <input type="checkbox" name="is_attending" id="checkboxSuccess3">
                     <label for="checkboxSuccess3">
@@ -70,5 +63,51 @@
         $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });
     });
 
+    $("#check_coupon").on('click', function() {
+        $("#coupons").html('');
+        if($("#id_first_name").val() && $("#id_last_name").val() && $("#id_phone").val() && $("#id_dob").val())
+        {
+            $(this).append("<i class='fas fa-spin fa-spinner'></i>")
+            $(this).prop('disabled', true);
+            $.ajax({
+                url: '/partner/coupons-search/',
+                type: 'POST',
+                data: {
+                    'first_name': $("#id_first_name").val(),
+                    'last_name': $("#id_last_name").val(),
+                    'phone_number': $("#id_phone").val(),
+                    'date_of_birth': $("#id_dob").val(),
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    $("#check_coupon").html("Check for Coupons ")
+                    $("#check_coupon").prop('disabled', false);
+                    $("#coupons").html('');
+                    $("#id_error").html(jqXHR.statusText);
+                },
+                success: function(results, status, xhr){
+                    $("#check_coupon").html("Check for Coupons ")
+                    $("#check_coupon").prop('disabled', false);
+                    console.log(results)
+                    html = '';
+                    if(results.length > 0){
+                        $("#id_error").html('');
+                        for(let i = 0; i < results.length; i++)
+                        {   
+                            html += '<div class="form-group">';
+                                html += '<label for="id_coupon_' + results[i].code + '"><input name="coupons" value="' + results[i].code +'"type="checkbox" id="id_coupon_' + results[i].code +'"> From ' + results[i].workplace + ' on ' + results[i].created_at + '</label>';
+                            html += '</div>';
+                        }
+                        $("#coupons").html(html);
+                        
+                    }else{
+                        $("#id_error").html('No coupons found!');
+                        $("#coupons").html('');
+                    }
+                        
+                },
+            });
+        }
+        
+    });
 </script>
 {% endblock js %}

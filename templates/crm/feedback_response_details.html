@@ -1,0 +1,334 @@
+{% extends 'crm/layout.html' %}
+{% load crm_tags %}
+
+{% block title %}{% feedback_setup object.feedback_code as feedback %}{{ feedback.description }}{% endblock title %}
+{% block page_title %}{% feedback_setup object.feedback_code as feedback %}{{ feedback.description }}{% endblock page_title %}
+{% block resp %}active{% endblock resp %}
+{% block css %}
+<style>
+    .rating {
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: row-reverse;
+    }
+
+    .rating>input {
+        display: none;
+    }
+
+    .rating>label {
+        position: relative;
+        width: 1em;
+        font-size: 2vw;
+        color: #00aeff;
+        cursor: pointer;
+    }
+
+    .rating>label::before {
+        content: "\2605";
+        position: absolute;
+        font-size: 2.1vw;
+        opacity: 0;
+    }
+
+    .rating>label:hover:before,
+    .rating>label:hover~label:before {
+        opacity: 1 !important;
+    }
+
+    .rating>input:checked~label:before {
+        opacity: 1;
+    }
+
+    .rating:hover>input:checked~label:before {
+        opacity: 0.4;
+    }
+
+    .range-wrap {
+  position: relative;
+  margin: 0 auto 3rem;
+}
+
+.bubble {
+  background: rgb(9, 166, 238);
+  color: white;
+  margin-top: 20px;
+  padding: 4px 12px;
+  position: absolute;
+  border-radius: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.bubble::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgb(6, 9, 201);
+  top: -1px;
+  left: 50%;
+}
+</style>
+{% endblock %}
+{% block content %}
+{% feedback_setup object.feedback_code as feedback %}
+{% patient object.patient_id as patient %}
+<div class="row">
+    <div class="col-md-4 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="list-group-flush">
+                    <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                        <span>Patient Name</span>
+                        <span>{{ patient.full_name }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                        <span>Patient ID</span>
+                        <span>{{ patient.code }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                        <span>Attendance No.</span>
+                        <span>{{attendances.count}}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                        <span>Attendance Date</span>
+                        <span>{{ object.attendance.created_at }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 col-lg-8">
+        <div class="card">
+            <div class="card-header">Patient Response</div>
+            <div class="card-body">
+                {% if not object.is_submitted %}
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <ol type="A" class="list-group-flush">
+                            {% for question in questions %}
+                                <li class="list-group-item">
+                                    <label id="id_{{question.id}}">{% if question.is_required %}<span class="text-danger">*</span>{% endif %} {{ question.text }}</label>
+                                    {% if question.question_type == 'Radio' %}
+                                    <div class="form-group clearfix mt-2">
+                                        <div class="icheck-primary d-inline">
+                                            <input type="radio" {%if question.is_required %}required{% endif %} id="id_{{question.id}}_1" value="Yes" name="{{question.id}}">
+                                            <label for="id_{{question.id}}_1">Yes
+                                            </label>
+                                        </div>
+                                        <div class="icheck-primary d-inline">
+                                            <input type="radio" {%if question.is_required %}required{% endif %} id="id_{{question.id}}_2" value="No" name="{{question.id}}">
+                                            <label for="id_{{question.id}}_2">No
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% elif question.question_type == 'Scale' %}
+                                        {% scales question.scale_count as scales%}
+                                        <div class="form-group mt-2 range-wrap">
+                                            <input required type="range" name="{{question.id}}" value='{{scales.first}}' class="custom-range range" min="{{scales.first}}" max="{{scales.last}}">
+                                            <output class="bubble"></output>
+                                            {% comment %} <select name="{{question.id}}" {%if question.is_required %}required{% endif %} id="id_{{question.id}}" class="custom-select">
+                                                <option value="">Select Choice</option>
+                                                {% for scale in scales %}
+                                                <option value="{{scale}}">{{scale}}</option>
+                                                {% endfor %}
+                                            </select> {% endcomment %}
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small>{{question.scale_start_text}}</small>
+                                                <small>{{question.scale_middle_text}}</small>
+                                                <small>{{question.scale_end_text}}</small>
+                                            </div>
+                                        </div>
+                                    {% elif question.question_type == 'Choice' %}
+                                        <div class="form-group mt-2">
+                                            <select name="{{question.id}}" id="id_{{question.id}}" {%if question.is_required %}required{% endif %} class="custom-select">
+                                                <option value="">Select Choice</option>
+                                                <option value="{{question.choice_answer_one}}">{{question.choice_answer_one}}</option>
+                                                <option value="{{question.choice_answer_two}}">{{question.choice_answer_two}}</option>
+                                                <option value="{{question.choice_answer_three}}">{{question.choice_answer_three}}</option>
+                                                <option value="{{question.choice_answer_four}}">{{question.choice_answer_four}}</option>
+                                            </select>
+                                        </div>
+                                    {% elif question.question_type == 'Fill' %}
+                                        <div class="form-group">
+                                            <textarea name="{{question.id}}" id="id_{{question_id}}" {%if question.is_required %}required{% endif %} class="form-control" cols="30" rows="3"></textarea>
+                                        </div>
+                                    {% elif question.question_type == 'Rating' %}
+                                        <div class="row">
+                                            <div class="col-md-2 col-lg-2">
+                                                <div class="form-group">
+                                                    <!-- <label for="id_rate">Rate this workshop</label> -->
+                                                    <div class="rating">
+                                                        <input type="radio" {%if question.is_required %}required{% endif %} name="{{question.id}}" value="5"
+                                                            id="{{question.id}}_5" class="form-control">
+                                                        <label for="{{question.id}}_5">
+                                                            <i class="far fa-star"></i>
+                                                        </label>
+                                                        <input type="radio" {%if question.is_required %}required{% endif %} name="{{question.id}}" value="4"
+                                                            id="{{question.id}}_4" class="form-control">
+                                                        <label for="{{question.id}}_4"><i class="far fa-star"></i></label>
+                                                        <input type="radio" {%if question.is_required %}required{% endif %} name="{{question.id}}" value="3"
+                                                            id="{{question.id}}_3" class="form-control">
+                                                        <label for="{{question.id}}_3"><i class="far fa-star"></i></label>
+                                                        <input type="radio" {%if question.is_required %}required{% endif %} name="{{question.id}}" value="2"
+                                                            id="{{question.id}}_2" class="form-control">
+                                                        <label for="{{question.id}}_2"><i class="far fa-star"></i></label>
+                                                        <input type="radio" {%if question.is_required %}required{% endif %} name="{{question.id}}" value="1"
+                                                            id="{{question.id}}_1" class="form-control">
+                                                        <label for="{{question.id}}_1"><i class="far fa-star"></i></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>             
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ol>
+                        <div class="form-group">
+                            <input type="submit" value="Submit" name="submit" class="btn btn-primary">
+                        </div>
+                    </form>
+                {% else %}
+                <ol type="A" class="list-group-flush">
+                    {% for question in questions %}
+                    {% question_answer object question as answer %}
+                        <li class="list-group-item">
+                            <label id="id_{{question.id}}">{% if question.is_required %}<span class="text-danger">*</span>{% endif %} {{ question.text }}</label>
+                            {% if question.question_type == 'Radio' %}
+                            
+                            <div class="form-group clearfix mt-2">
+                                <div class="custom-control custom-radio d-inline">
+                                    <input class="custom-control-input custom-control-input-success" type="radio" id="customRadio0" name="customRadio0"  {% if  answer.text == 'Yes' %} checked{% endif %}>
+                                    <label for="customRadio4" class="custom-control-label">Yes</label>
+                                </div>
+                                <div class="custom-control custom-radio d-inline">
+                                    <input class="custom-control-input custom-control-input-success" type="radio" id="customRadio0" name="customRadio0"  {% if answer.text == 'No' %}checked{% endif %}>
+                                    <label for="customRadio4" class="custom-control-label">No</label>
+                                </div>
+                            
+                            </div>
+                            {% elif question.question_type == 'Scale' %}
+                                {% scales question.scale_count as scales%}
+                                <div class="form-group mt-2 range-wrap">
+                                    
+                                    <input required type="range" name="{{question.id}}" disabled value='{{answer.text}}' class="custom-range range" min="{{scales.first}}" max="{{scales.last}}">
+                                    <output class="bubble"></output>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small>{{question.scale_start_text}}</small>
+                                        <small>{{question.scale_middle_text}}</small>
+                                        <small>{{question.scale_end_text}}</small>
+                                    </div>
+                                </div>
+                            {% elif question.question_type == 'Choice' %}
+                                
+                                <div class="form-group mt-2">
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input custom-control-input-success" type="radio" id="customRadio4" name="customRadio2" {% if question.choice_answer_one == answer.text %} checked{% endif %}>
+                                        <label for="customRadio4" class="custom-control-label">{{question.choice_answer_one}}</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input custom-control-input-success" type="radio" id="customRadio4" name="customRadio2" {% if question.choice_answer_two == answer.text %} checked{% endif %}>
+                                        <label for="customRadio4" class="custom-control-label">{{question.choice_answer_two}}</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input custom-control-input-success" type="radio" id="customRadio4" name="customRadio2"  {% if question.choice_answer_three == answer.text %} checked{% endif %}>
+                                        <label for="customRadio4" class="custom-control-label">{{question.choice_answer_three}}</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input custom-control-input-success" type="radio" id="customRadio4" name="customRadio2"  {% if question.choice_answer_four == answer.text %} checked{% endif %}>
+                                        <label for="customRadio4" class="custom-control-label">{{question.choice_answer_four}}</label>
+                                    </div>
+                                    
+                                </div>
+                            {% elif question.question_type == 'Fill' %}
+                                <div class="form-group">
+                                    <textarea name="{{question.id}}" id="id_{{question_id}}" readonly {%if question.is_required %}required{% endif %} class="form-control" cols="30" rows="3">{{answer.text}}</textarea>
+                                </div>
+                            {% elif question.question_type == 'Rating' %}
+                                {% if answer.text == '5' %}
+                                    <div class="form-group">
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                    </div>
+                                {% elif answer.text == '4' %}
+                                    <div class="form-group">
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                    </div>
+                                {% elif answer.text == '3' %}
+                                    <div class="form-group">
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                    </div>
+                                {% elif answer.text == '2' %}
+                                    <div class="form-group">
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                    </div>
+                                {% elif answer.text == '1' %}
+                                    <div class="form-group">
+                                        <i class="fa text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                    </div>
+                                {% elif answer.text == '0' %}
+                                    <div class="form-group">
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                        <i class="far text-primary fa-2x fa-star"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                              
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block js %}
+  <script>
+      const allRanges = document.querySelectorAll(".range-wrap");
+allRanges.forEach(wrap => {
+  const range = wrap.querySelector(".range");
+  const bubble = wrap.querySelector(".bubble");
+
+  range.addEventListener("input", () => {
+    setBubble(range, bubble);
+  });
+  setBubble(range, bubble);
+});
+
+function setBubble(range, bubble) {
+  const val = range.value;
+  const min = range.min ? range.min : 0;
+  const max = range.max ? range.max : 100;
+  const newVal = Number(((val - min) * 100) / (max - min));
+  bubble.innerHTML = val;
+
+  // Sorta magic numbers based on size of the native UI thumb
+  bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
+}
+  </script>
+{% endblock js %}

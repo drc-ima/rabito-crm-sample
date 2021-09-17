@@ -50,14 +50,14 @@
 <div class="card">
     <div class="card-body">
         <div class="row">
-            <div class="col-md-11 col-lg-11">
+            <div class="col-md-10 col-lg-10">
                 <div class="form-group">
                     <label for="id_title">Title</label>
                     <input type="text" name="description" readonly id="id_title" value="{{object.description}}"
                         class="form-control">
                 </div>
             </div>
-            <div class="col-md-1 col-lg-1">
+            <div class="col-md-2 col-lg-2">
                 {% if object.status == 1 or object.status == 3%}
                 <form action="" method="post">
                     {% csrf_token %}
@@ -75,7 +75,7 @@
         <ol type="1" class="list-group-flush">
             {% for question in questions %}
             <li class="list-group-item">
-                <label>{{ question.text }}</label>
+                <label>{% if question.is_required %}<span class="text-danger">*</span>{% endif %} {{ question.text }}</label>
                 {% if question.question_type == 'Radio' %}
                 <div class="form-group clearfix mt-2">
                     <div class="icheck-primary d-inline">

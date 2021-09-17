@@ -1,3 +1,4 @@
+from apps.patient.models import Attendance
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -39,6 +40,7 @@ QUESTION_TYPES = [
 class Question(models.Model):
     feedback_code = models.CharField(max_length=100, blank=True, null=True)
     text = models.CharField(max_length=300, blank=True, null=True)
+    is_required = models.BooleanField(default=False, null=True, blank=True)
     question_type = models.CharField(max_length=300, blank=True, null=True, choices=QUESTION_TYPES)
     scale_start_text = models.CharField(max_length=300, blank=True, null=True)
     scale_middle_text = models.CharField(max_length=300, blank=True, null=True)
@@ -62,10 +64,14 @@ class Question(models.Model):
 
 
 class FeedbackResponse(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+    attendance = models.ForeignKey(Attendance, blank=True, null=True, related_name='attendance_feedback_response', on_delete=models.DO_NOTHING)
     patient_id = models.CharField(max_length=100, blank=True, null=True)
     officer_id = models.CharField(max_length=100, blank=True, null=True)
     feedback_code = models.CharField(max_length=100, blank=True, null=True)
     is_submitted = models.BooleanField(default=False)
+    branch_code = models.CharField(max_length=100, blank=True)
+    submitted_by = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="responses", on_delete=models.DO_NOTHING)
 
@@ -77,6 +83,7 @@ class FeedbackResponse(models.Model):
         managed = True
         verbose_name = 'Feedback Response'
         verbose_name_plural = 'Feedback Responses'
+        ordering = ['-created_at']
 
 
 class Answer(models.Model):
@@ -87,7 +94,7 @@ class Answer(models.Model):
     # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="feedbacks", on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return self.text
+        return str(self.question)
 
     class Meta:
         db_table = 'answer'

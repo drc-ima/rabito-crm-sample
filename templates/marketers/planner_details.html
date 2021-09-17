@@ -9,14 +9,24 @@ active
 {{object.description}}
 {% endblock page_title %}
 {% block content %}
+
 <div class="row">
     <div class="col-md-10 col-lg-10">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h5><i class="icon fas fa-exclamation-triangle"></i> Error!</h5>
+                    {{message}}
+                </div>
+            {% endfor %}
+        {% endif %}
         <div class="card mb-5">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-10 col-lg-10">
                         <h4 class='text-primary'>
-                            <i class="fa fa-1x fa-calendar-alt"></i> {{object.activity_date}} at {{object.start_time }}
+                            <i class="fa fa-1x fa-calendar-alt"></i> {% if object.is_rescheduled %}<span class="text-warning">Re:</span>{% endif %} {{object.activity_date}} at {{object.start_time }}
                             to {{object.end_time}}
                         </h4>
                     </div>
@@ -26,6 +36,10 @@ active
                 </div>
                 <hr>
                 Scheduled by {{object.created_by}}
+                {% if object.is_rescheduled %}
+                  <hr>
+                  Original Time : {{object.original_date}} at {{object.original_start_time}} to {{object.original_end_time}}
+                {% endif %}
             </div>
         </div>
         <h5>Others in this planner</h5>
@@ -34,23 +48,35 @@ active
                 <div class="table-responsive">
                     <table class="table table-borderless">
                         <tbody>
-                            <tr>
-                                <td colspan="4">
-                                    <i class="fa fa-user-plus"></i> Invite others
-                                </td>
-                            </tr>
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <tr>
+                                    <td colspan="3">
+                                        <select name='members' required class="select2 custom-select form-control form-control-lg"
+                                            multiple="multiple" data-placeholder="Select people to Invite" style="width: 100%;">
+                                            {% for member in members %}
+                                            <option value="{{member.uuid}}">{{member.get_full_name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="submit" name="submit" value="Invite" class="btn btn-default">
+                                    </td>
+                                </tr>
+                            </form>
+                            
                             {% for member in object.group.all %}
                             <tr>
                                 <td>{{member}}</td>
                                 <td>{{member.get_user_type_display}}</td>
                                 <td>{{member.phone_number}}</td>
                                 <td align='right'>
-                                    <a href="">REMOVE</a>
+                                    <a href="?remove_invite={{member.uuid}}">REMOVE</a>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="4">No one is invited to this planner</td>
                             </tr>
                             {% endfor %}
 
@@ -67,16 +93,21 @@ active
                         <tbody>
                             <tr>
                                 <td colspan="4">
-                                    <i class="fa fa-user-plus"></i> Add Engagment
+                                    <a href="#" data-toggle="modal" data-target="#addEngage">
+                                        <i class="fa fa-user-plus"></i> Add Engagment
+                                    </a>
+
                                 </td>
                             </tr>
-                            {% for member in engagments %}
+                            {% for member in engagements %}
                             <tr>
-                                <td>{{member.full_name}}</td>
                                 <td>{{member.get_engaged_with_display}}</td>
+                                <td>{{member.full_name}}</td>
+                                <td>{{member.contact_person}}</td>
                                 <td>{{member.phone_number}}</td>
+                                <td>{{member.email}}</td>
                                 <td align='right'>
-                                    <a href="">REMOVE</a>
+                                    <a href="?remove_engage={{member.id}}">REMOVE</a>
                                 </td>
                             </tr>
                             {% empty %}
@@ -89,6 +120,23 @@ active
                     </table>
                 </div>
             </div>
+        </div>
+        <div class="card mb-5">
+            <div class="card-header">Submit Report</div>
+            <div class="card-body">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <textarea id="compose-textarea" name='report' placeholder="Enter your report here" required class="form-control" style="height: 300px">{{object.report | safe}}</textarea>
+                    </div>
+                    <div class="form-group" align='right'>
+                        <input type="submit" name="submit" value="Report" class="btn btn-primary">
+                    </div>
+                </form>
+                
+            </div>
+            
         </div>
         <div class="row">
             <div class="col-md-6 col-lg-6">
@@ -130,4 +178,144 @@ active
         </div>
     </div>
 </div>
+<div class="modal fade" id="addEngage" data-backdrop="static" tabindex="-1" role="dialog"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="staticBackdropLabel">Add Engagment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id_engaged_with">Engaged With</label>
+                        <select name="engaged_with" required id="id_engaged_with" class="custom-select">
+                            <option value="">Select Engaged With</option>
+                            <option value="I">Individual</option>
+                            <option value="C">Company</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id='full_name' hidden>
+                        <label for="id_full_name" id="full_name_label">Full Name</label>
+                        <input type="text" name="full_name" id="id_full_name" class="form-control">
+                    </div>
+                    <div class="form-group" id="contact_person" hidden>
+                        <label for="id_contact_person">Contact Person</label>
+                        <input type="text" name="contact_person" id="id_contact_person" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_phone_number">Phone Number</label>
+                        <input type="text" name="phone_number" required id="id_phone_number" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_email">Email</label>
+                        <input type="email" name="email" id="id_email" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" name="submit" value="Add Engagement" class="btn btn-primary">
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="rescheduleModal" data-backdrop="static" tabindex="-1" role="dialog"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="staticBackdropLabel">Reschedule Planner</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" required value="{{object.activity_date | safe}}" id="id_date" name='date' placeholder='Date' autocomplete="off"
+                            data-toggle="datetimepicker" data-target="#id_date"
+                            class="form-control form-control-sm datetimepicker-input">
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <input type="text" value="{{object.start_time | safe}}" required placeholder='From' autocomplete="off" name='start'
+                                        id="id_starts" class="form-control form-control-sm datetimepicker-input"
+                                        data-toggle="datetimepicker" data-target="#id_starts">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <input type="text" value="{{object.end_time | safe}}" required placeholder='To' autocomplete="off" name='end' id="id_ends"
+                                        class="form-control form-control-sm datetimepicker-input"
+                                        data-toggle="datetimepicker" data-target="#id_ends">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" name="submit" value="Reschedule" class="btn btn-primary">
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
 {% endblock content %}
+{% block js %}
+<script>
+    $("#id_engaged_with").on('change', function () {
+        var value = $(this).val();
+        if(value === 'I')
+        {
+            $("#full_name").prop('hidden', false),
+            $("#full_name_label").html('Full Name');
+            $("#id_full_name").prop('required', true);
+            $("#contact_person").prop('hidden', true);
+            $("#id_contact_person").prop('required', false);
+        }
+        else if(value === 'C')
+        {
+            $("#full_name").prop('hidden', false),
+            $("#full_name_label").html('Company Name');
+            $("#id_full_name").prop('required', true);
+            $("#contact_person").prop('hidden', false);
+            $("#id_contact_person").prop('required', true);
+        }else{
+            $("#full_name").prop('hidden', true),
+            $("#full_name_label").html('Company Name');
+            $("#id_full_name").prop('required', false);
+            $("#contact_person").prop('hidden', true);
+            $("#id_contact_person").prop('required', false);
+        }
+    });
+    $(function () {
+        $('[data-mask]').inputmask()
+        //Date picker
+        $('#id_date').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        $('#id_starts').datetimepicker({
+            format: 'HH:mm A'
+        });
+        $('#id_ends').datetimepicker({
+            format: 'HH:mm A'
+        });
+        //Initialize Select2 Elements
+        $('.select2').select2()
+        $('#compose-textarea').summernote()
+        // $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });
+    });
+</script>
+  
+{% endblock js %}

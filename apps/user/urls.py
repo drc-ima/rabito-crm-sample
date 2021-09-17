@@ -14,6 +14,7 @@ urlpatterns = [
     path('partners/', partner_users, name='partners'),
     path('admins/', admin_users, name='admins'),
     path('add-user/', add_user, name='add-user'),
+    path('coupons/', coupons, name='coupons'),
     path('update-role/<id>/', update_role, name='update-role'),
 ]
 

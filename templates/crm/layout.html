@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+    <!-- SweetAlert2 -->
+  <link rel="stylesheet" href="{% static '' %}plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
     <!-- DataTables -->
   <link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
@@ -84,7 +86,7 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="../../index3.html" class="brand-link">
+            <a href="{% url 'user:dashboard' %}" class="brand-link">
                 <img src="{% static 'dist/img/rabito-icon.png' %}" alt="rabito Logo"
                     class="brand-image img-circle elevation-3" style="opacity: .8">
                 <span class="brand-text font-weight-light">Rabito CRM</span>
@@ -139,7 +141,7 @@
                         {% endif %}
                         {% if role_perms.view_commission %}
                         <li class="nav-item">
-                            <a href="" class="nav-link {% block coup %}{% endblock%}">
+                            <a href="{% url 'user:coupons' %}" class="nav-link {% block coup %}{% endblock%}">
                                 <i class="nav-icon fas fa-ticket-alt"></i>
                                 <p>
                                     Coupons
@@ -184,7 +186,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{% url 'user:partners' %}" class="nav-link">
+                                    <a href="{% url 'user:partners' %}" class="nav-link {% block parts %}{% endblock %}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Partners</p>
                                     </a>
@@ -203,7 +205,7 @@
                         {% endif %}
                         
                         <li class="nav-item">
-                            <a href="" class="nav-link">
+                            <a href="{% url 'feedback:responses' %}" class="nav-link {% block resp %}{% endblock%}">
                                 <i class="nav-icon fas fa-comment-medical"></i>
                                 <p>
                                     Feedback
@@ -269,7 +271,7 @@
 
             <div class="sidebar-custom">
                 <a href="#" class="btn btn-link" title="Settings"><i class="fas fa-cogs"></i></a>
-                <a href="{% url 'logout' %}" class="btn btn-secondary hide-on-collapse pos-right">Help</a>
+                <a href="{% url 'logout' %}" class="btn btn-secondary hide-on-collapse pos-right">Logout</a>
             </div>
             <!-- /.sidebar-custom -->
         </aside>
@@ -330,6 +332,7 @@
     <!-- InputMask -->
     <script src="{% static 'plugins/moment/moment.min.js' %}"></script>
     <script src="{% static 'plugins/inputmask/jquery.inputmask.min.js' %}"></script>
+    <script src="{% static '' %}plugins/sweetalert2/sweetalert2.min.js"></script>
     <!-- date-range-picker -->
     <script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
     <!-- Tempusdominus Bootstrap 4 -->
@@ -352,6 +355,25 @@
     {% block js %}
       
     {% endblock js %}
+    <script>
+    var Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: true,
+      timer: 10000
+    });
+    {% if messages %}
+    {% for message in messages %}
+    Toast.fire({
+        icon: '{{message.tags}}',
+        title: '{{message}}'
+      })
+    {% endfor %}
+    {% endif %}
+      
+    
+    </script>
+    
     <!-- AdminLTE for demo purposes -->
     <!-- <script src="../../dist/js/demo.js"></script> -->
 </body>

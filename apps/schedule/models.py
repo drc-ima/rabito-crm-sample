@@ -20,6 +20,9 @@ class Planner(models.Model):
     activity_date = models.DateField(null=True, blank=True)
     start_time = models.TimeField(blank=True, null=True)
     end_time = models.TimeField(blank=True, null=True)
+    orignal_date = models.DateField(null=True, blank=True)
+    original_start_time = models.TimeField(null=True, blank=True)
+    original_end_time = models.TimeField(blank=True, null=True)
     report = models.CharField(max_length=500, blank=True, null=True)
     is_rescheduled = models.BooleanField(default=False)
     reschedule_at = models.DateTimeField(blank=True, null=True)
@@ -42,8 +45,10 @@ class Planner(models.Model):
 class Engagement(models.Model):
     planner = models.ForeignKey(Planner, blank=True, null=True, related_name="planner_engagement", on_delete=models.DO_NOTHING)
     engaged_with = models.CharField(max_length=100, blank=True, null=True, choices=[('I', 'Individual'), ('C', 'Company')])
+    contact_person = models.CharField(max_length=100, blank=True, null=True)
     full_name = models.CharField(max_length=200, blank=True, null=True)
     phone_number = models.CharField(max_length=100, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="engagements", on_delete=models.DO_NOTHING)
 
@@ -52,6 +57,7 @@ class Engagement(models.Model):
         managed = True
         verbose_name = 'Engagement'
         verbose_name_plural = 'Engagements'
+        ordering = ('-created_at',)
 
     def __str__(self):
         return self.full_name

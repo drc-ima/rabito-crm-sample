@@ -23,6 +23,7 @@ from apps.feedback import urls as feedback_urls
 from apps.commission import urls as commission_urls
 from apps.marketer import urls as marketer_urls
 from apps.schedule import urls as schedule_urls
+from apps.partner import urls as partner_urls
 
 
 def layout(request):
@@ -35,6 +36,7 @@ urlpatterns = [
     path('feedback/', include(feedback_urls, namespace="feedback")),
     path('commission/', include(commission_urls, namespace="commission")),
     path('marketer/', include(marketer_urls, namespace="marketer")),
+    path('partner/', include(partner_urls, namespace="partner")),
     path('planner/', include(schedule_urls, namespace="schedule")),
     path('permission-error/', permission_error, name="permission-error"),
     path('', user_login, name='login'),

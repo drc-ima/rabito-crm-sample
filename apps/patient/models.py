@@ -23,6 +23,7 @@ class Patient(models.Model):
         managed = True
         verbose_name = 'Patient'
         verbose_name_plural = 'Patients'
+        ordering = ['-created_at']
     
     def __str__(self):
         return self.code
@@ -34,6 +35,7 @@ class Patient(models.Model):
 class Attendance(models.Model):
     patient_code = models.CharField(max_length=100, blank=True, null=True)
     branch_code = models.CharField(max_length=100, blank=True, null=True)
+    is_first = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="attendances", on_delete=models.DO_NOTHING)
     
@@ -42,6 +44,7 @@ class Attendance(models.Model):
         managed = True
         verbose_name = 'Attendance'
         verbose_name_plural = 'Attendances'
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.patient_code

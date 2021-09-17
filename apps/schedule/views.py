@@ -140,6 +140,9 @@ def weekly(request):
             activity_date=activity_date,
             start_time=start,
             end_time=end,
+            orignal_date=activity_date,
+            original_start_time=start_time,
+            original_end_time=end_time,
             created_by=request.user
         )
 
@@ -163,14 +166,47 @@ def planner_details(request, uuid):
 
     try:
         planner = Planner.objects.get(uuid=uuid, created_by=request.user)
-    except:pass
+    except Planner.DoesNotExist:
+        try:
+            planner = Planner.objects.get(group__code=request.user.code, uuid=uuid)
+        except Planner.DoesNotExist:pass
 
     engagements = Engagement.objects.filter(planner=planner)
 
+    # member_groups = User.objects.exclude(uuid=)
+    
+    # members = list(chain(member_groups, ))
+
     context = {
         'object': planner,
-        'engagements': engagements
+        'engagements': engagements,
+        'members': User.objects.exclude(uuid=request.user.uuid)
     }
+
+    try:
+        remove_invite = request.GET.get('remove_invite')
+        remove_engage = request.GET.get('remove_engage')
+
+        if remove_invite:
+            try:
+                urs = User.objects.get(uuid=remove_invite)
+                planner.group.remove(urs)
+                print(urs)
+                planner.save()
+            except User.DoesNotExist:
+                messages.error(request, f'Invalid user account') 
+
+            return redirect('schedule:details', uuid)
+            
+        if remove_engage:
+            try:
+                eng = Engagement.objects.get(id=remove_engage, planner=planner)
+                eng.delete()
+            except Engagement.DoesNotExist:
+                messages.error(request, f'This engagement does not exist')
+            
+            return redirect('schedule:details', uuid)
+    except:pass
 
     if request.method == 'POST':
         submit = request.POST.get('submit')
@@ -185,6 +221,102 @@ def planner_details(request, uuid):
 
             planner.comments.add(nc)
 
+            return redirect('schedule:details', uuid)
+
+        elif submit == 'Add Engagement':
+            engaged_with = request.POST.get('engaged_with')
+            contact_person = request.POST.get('contact_person')
+            full_name = request.POST.get('full_name')
+            phone_number = request.POST.get('phone_number')
+            email = request.POST.get('email')
+
+            Engagement.objects.create(
+                planner=planner,
+                engaged_with=engaged_with,
+                contact_person=contact_person,
+                full_name=full_name,
+                phone_number=phone_number,
+                email=email,
+                created_by=request.user
+            )
+
+            return redirect('schedule:details', uuid)
+
+        elif submit == 'Reschedule':
+            activity_date = request.POST.get('date')
+            start = request.POST.get('start')
+            end = request.POST.get('end')
+
+            start_time = datetime.strptime(start, '%H:%M %p')
+            end_time = datetime.strptime(end, '%H:%M %p')
+
+            if start >= end:
+                messages.error(request, 'Start time must not be greater than end time')
+                return redirect('schedule:details', uuid)
+
+            my_planners = Planner.objects.exclude(uuid=uuid).filter(activity_date=activity_date, created_by=request.user)
+
+            group_planners = Planner.objects.exclude(uuid=uuid).filter(
+                group__code=request.user.code, activity_date=activity_date
+            )
+
+            day_planners = list(chain(my_planners, group_planners))
+
+            for plannerr in day_planners:
+                # check time range
+                if start_time.time() >= plannerr.start_time and end_time.time() <= plannerr.end_time:
+                    messages.error(request, 'Time range already scheduled')
+                    return redirect('schedule:details', uuid)
+                # check start time and end time conflicts
+                elif start_time.time() == plannerr.start_time or end_time.time == plannerr.end_time:
+                    messages.error(request, 'Time range conflicts 1')
+                    return redirect('schedule:details', uuid)
+
+                elif start_time.time() >= plannerr.start_time and start_time.time() <= plannerr.end_time:
+                    messages.error(request, 'Time range conflicts with another schedule')
+                    return redirect('schedule:details', uuid)
+
+                elif start_time.time() <= plannerr.start_time and end_time.time() >= plannerr.start_time:
+                    messages.error(request, 'Time range conflicts with another schedule')
+                    return redirect('schedule:details', uuid)
+
+            planner.activity_date = activity_date
+            planner.start_time = start
+            planner.end_time = end
+            planner.is_rescheduled = True
+            planner.reschedule_at = timezone.now()
+            planner.reschedule_by = request.user
+            planner.save()
+
+            return redirect('schedule:details', uuid)
+
+        elif submit == 'Invite':
+            invites = request.POST.getlist('members')
+
+            for invite in invites:
+                try:
+                    m = planner.group.get(uuid=invite)
+                    messages.error(request, f'{m} is already invited')
+                except User.DoesNotExist:
+                    try:
+                        ur = User.objects.get(uuid=invite)
+                        planner.group.add(ur)
+                    except User.DoesNotExist:
+                        messages.error(request, 'Invalid user account')
+
+            # planner.group.save()
+            planner.save()
+            
+            return redirect('schedule:details', uuid)
+
+        elif submit == 'Report':
+            report = request.POST.get('report')
+
+            print(report)
+
+            planner.report = report
+
+            planner.save()
     return render(request, 'marketers/planner_details.html', context)
 
 
@@ -259,26 +391,84 @@ def daily(request):
         except Planner.DoesNotExist:
             try:
                 planner = Planner.objects.get(
+                    Q(Q(start_time__lte=start_time.time())&Q(end_time__gte=end_time.time())),
+                    group__code=request.user.code,
+                    activity_date=activity_date
+                )
+                messages.error(request, 'Time range already scheduled')
+                print(planner)
+                return render(request, 'marketers/daily.html', context)
+            except Planner.DoesNotExist:pass
+
+        try:
+            planner = Planner.objects.get(
+                Q(Q(start_time=start_time.time())|Q(end_time=end_time.time())),
+                created_by=request.user,
+                activity_date=activity_date
+            )
+            messages.error(request, 'Time range conflicts with another schedule 1')
+            print(planner)
+            return render(request, 'marketers/daily.html', context)
+    
+        except Planner.DoesNotExist:
+            try:
+                planner = Planner.objects.get(
                     Q(Q(start_time=start_time.time())|Q(end_time=end_time.time())),
-                    created_by=request.user,
+                    group__code=request.user.code,
                     activity_date=activity_date
                 )
                 messages.error(request, 'Time range conflicts with another schedule 1')
                 print(planner)
                 return render(request, 'marketers/daily.html', context)
         
-            except Planner.DoesNotExist:
+            except Planner.DoesNotExist:pass
+        
+        try:
+            planner = Planner.objects.get(
+                Q(Q(start_time__lte=start_time.time()) & Q(end_time__gte=start_time.time())),
+                created_by=request.user,
+                activity_date=activity_date
+            )
+
+            messages.error(request, 'Time range conflicts with another schedule 2')
+            print(planner)
+            return render(request, 'marketers/daily.html', context)
+        except Planner.DoesNotExist:
+            try:
                 planner = Planner.objects.get(
                     Q(Q(start_time__lte=start_time.time()) & Q(end_time__gte=start_time.time())),
-                    created_by=request.user,
+                    group__code=request.user.code,
                     activity_date=activity_date
                 )
 
                 messages.error(request, 'Time range conflicts with another schedule 2')
                 print(planner)
                 return render(request, 'marketers/daily.html', context)
+            except Planner.DoesNotExist:pass
 
-        except Planner.DoesNotExist:pass
+        try:
+            planner = Planner.objects.get(
+                Q(Q(start_time__gte=start_time.time()) & Q(start_time__lte=end_time.time())),
+                created_by=request.user,
+                activity_date=activity_date
+            )
+
+            messages.error(request, 'Time range conflicts with another schedule 3')
+            print(planner)
+            return render(request, 'marketers/daily.html', context)
+        except Planner.DoesNotExist:
+            try:
+                planner = Planner.objects.get(
+                    Q(Q(start_time__gte=start_time.time()) & Q(start_time__lte=end_time.time())),
+                    group__code=request.user.code,
+                    activity_date=activity_date
+                )
+
+                messages.error(request, 'Time range conflicts with another schedule 3')
+                print(planner)
+                return render(request, 'marketers/daily.html', context)
+            except Planner.DoesNotExist:pass
+
 
         # for planner in day_planners:
         #     # check time range
@@ -299,21 +489,24 @@ def daily(request):
         #         return redirect('schedule:daily')
 
 
-        # np = Planner.objects.create(
-        #     description=desc,
-        #     activity_date=activity_date,
-        #     start_time=start,
-        #     end_time=end,
-        #     created_by=request.user
-        # )
+        np = Planner.objects.create(
+            description=desc,
+            activity_date=activity_date,
+            start_time=start,
+            orignal_date=activity_date,
+            original_start_time=start_time,
+            original_end_time=end_time,
+            end_time=end,
+            created_by=request.user
+        )
 
-        # for invite in invites:
-        #     try:
-        #         user = User.objects.get(uuid=invite)
-        #         np.group.add(user)
-        #     except User.DoesNotExist:pass
+        for invite in invites:
+            try:
+                user = User.objects.get(uuid=invite)
+                np.group.add(user)
+            except User.DoesNotExist:pass
         
-        # np.save()
+        np.save()
 
         # return redirect('schedule:daily')
         return render(request, 'marketers/daily.html', context)

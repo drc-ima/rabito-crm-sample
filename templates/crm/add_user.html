@@ -2,6 +2,51 @@
 {% block title %}{{title}}{% endblock title %}
 {% block page_title %}{{title}}{% endblock %}
 {% block content %}
+{% if user_type == 'PU' %}
+<div class="card">
+    <div class="card-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_workplace">Workplace</label>
+                <input type="text" required name="workplace" placeholder="Enter partner workplace" id="id_workplace" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_location">Location</label>
+                <input type="text" required name="location" placeholder="Enter workplace location" id="id_location" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_first">First Name</label>
+                <input type="text" required name="first_name" placeholder="Enter first name" id="id_first" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_last">Last Name</label>
+                <input type="text" required name="last_name" placeholder="Enter last name" id="id_last" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_email">Email Address</label>
+                <input type="email" name="email" required placeholder="Enter email address" id="id_email" class="form-control form-control-sm">
+                <small>This will be used to login on the partner portal</small>
+            </div>
+            <div class="form-group">
+                <label for="id_phone">Phone Number</label>
+                <input type="text" required name="phone_number" placeholder="Enter phone number" id="id_phone" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label for="id_gender">Gender</label>
+                <select name="gender" required id="id_gender" class="custom-select">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
+</div>
+{% else %}
 <form action="" method="post">
     <div class="card">
         <div class="card-body">
@@ -26,6 +71,7 @@
                 <input type="text" name="phone_number" id="id_phone_number" placeholder="Phone Number"
                     class="form-control form-control-sm">
             </div>
+            {% if user_type == 'AD' %}
             <div class="form-group">
                 <label for="id_role">Role</label>
                 <select name="role" required id="id_role" class="custom-select">
@@ -35,6 +81,8 @@
                     {% endfor %}
                 </select>
             </div>
+            {% endif %}
+            
             <div class="form-group">
                 <label for="id_gender">Gender</label>
                 <select name="gender" id="id_gender" required class="custom-select">
@@ -62,4 +110,6 @@
         </div>
     </div>
 </form>
+{% endif %}
+
 {% endblock content %}

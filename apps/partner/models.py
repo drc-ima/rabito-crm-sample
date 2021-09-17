@@ -43,6 +43,7 @@ class Coupon(models.Model):
     commission = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0.00)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="coupons", on_delete=models.DO_NOTHING)
     created_at = models.DateTimeField(default=timezone.now)
+    branch_code = models.CharField(max_length=100, blank=True, null=True)
     status = models.IntegerField(choices=COUPON_STATUS, blank=True, null=True)
     
     class Meta:
@@ -53,4 +54,19 @@ class Coupon(models.Model):
 
     def __str__(self):
         return self.code
-    
+
+
+class CouponStatus(models.Model):
+    coupon = models.ForeignKey(Coupon, on_delete=models.DO_NOTHING, related_name='coupon_status_coupon', blank=True, null=True)
+    status = models.IntegerField(choices=COUPON_STATUS, blank=True, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="coupon_statuses", on_delete=models.DO_NOTHING)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = 'coupon_status'
+        managed = True
+        verbose_name = 'Coupon Status'
+        verbose_name_plural = 'Coupon Statuses'
+
+    def __str__(self):
+        return str(self.get_status_display())
