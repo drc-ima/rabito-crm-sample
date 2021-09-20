@@ -14,8 +14,8 @@ def user_passes_test(test_func, redirect_url=None):
             path = request.build_absolute_uri()
             resolved_redirect_url = resolve_url(redirect_url or settings.PERMISSION_REDIRECT_URL)
 
-            return redirect(resolved_redirect_url)
-            # raise PermissionDenied
+            # return redirect(resolved_redirect_url)
+            raise PermissionDenied
         return _wrapped_view
     return decorator
 

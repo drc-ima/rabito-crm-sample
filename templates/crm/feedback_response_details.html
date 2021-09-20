@@ -94,6 +94,10 @@
                         <span>Attendance Date</span>
                         <span>{{ object.attendance.created_at }}</span>
                     </div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                        <span>Patient Mobile</span>
+                        <span>{{ patient.phone_number }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -155,7 +159,7 @@
                                         </div>
                                     {% elif question.question_type == 'Rating' %}
                                         <div class="row">
-                                            <div class="col-md-2 col-lg-2">
+                                            <div class="col-md-2 col-lg-2 ml-5">
                                                 <div class="form-group">
                                                     <!-- <label for="id_rate">Rate this workshop</label> -->
                                                     <div class="rating">

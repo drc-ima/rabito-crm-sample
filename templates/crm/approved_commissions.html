@@ -1,0 +1,87 @@
+{% extends 'crm/layout.html' %}
+{% load crm_tags %}
+{% block header %}
+<li class="nav-item d-none d-sm-inline-block">
+    <a href="{% url 'commission:all' %}" class="nav-link">All</a>
+</li>
+<li class="nav-item d-none d-sm-inline-block">
+    <a href="{% url 'commission:generated' %}" class="nav-link">Generated</a>
+</li>
+<li class="nav-item d-none d-sm-inline-block">
+    <a href="{% url 'commission:confirmed' %}" class="nav-link">Confirmed</a>
+</li>
+<li class="nav-item d-none d-sm-inline-block">
+    <a href="{% url 'commission:approved' %}" class="nav-link active">Approved</a>
+</li>
+<li class="nav-item d-none d-sm-inline-block">
+    <a href="{% url 'commission:canceled' %}" class="nav-link">Canceled</a>
+</li>
+{% endblock header %}
+{% block comm %}active{% endblock %}
+{% block title %}Commissions{% endblock title %}
+{% block page_title %}Commissions{% endblock page_title %}
+{% block content %}
+    <div class="card">
+        <form action="" method="post">
+            <div class="card-header">
+                <div class="justify-content-between align-items-center d-flex">
+                    <span>Approved Commissions</span>
+                    <div>
+                        <!-- <input type="submit" name="submit" value="Approve" class="btn btn-primary">
+                        <input type="submit" name="submit" value="Cancel" class="btn btn-warning"> -->
+                    </div>
+                </div>
+                
+            </div>{% csrf_token %}
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless">
+                        <thead>
+                            <tr>
+                                <th nowrap>Coupon ID</th>
+                                <th nowrap>Partner Code</th>
+                                <th nowrap>Patient ID</th>
+                                <th nowrap>Amount (GHS)</th>
+                                <th nowrap>Branch</th>
+                                <th nowrap>Date Approved</th>
+                                <th nowrap>Approved By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for object in object_list %}
+                                {% partner code=object.partner_code as partner %}
+                                {% branch partner.branch_code as branch %}
+                                <tr>
+                                    
+                                    <td nowrap>{{object.coupon_code}}</td>
+                                    <td nowrap>{{partner.workplace}}</td>
+                                    <td nowrap>{{object.patient_id}}</td>
+                                    <td nowrap class="amount" data-index="{{object.amount}}" >{{object.amount}}</td>
+                                    <td nowrap>{{ branch.description }}</td>
+                                    <td nowrap>{{object.approved_at}}</td>
+                                    <td nowrap>{{object.approved_by}}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="8" align="center">No commissions here</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                Commissions Total: <span class='font-weight-bolder' id="total_comm">GHS 0</span>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+{% block js %}
+<script>
+    let total_comm = 0;
+    $(".amount").each(function(index, object) {
+        total_comm += parseInt($(this).data('index'));
+        $("#total_comm").html("GHS "+total_comm);
+    });
+</script>
+{% endblock js %}

@@ -1,0 +1,105 @@
+{% extends 'partners/layout.html' %}
+{% block title %}Commissions{% endblock title %}
+{% block page_title %}Commissions{% endblock page_title %}
+{% block comm %}active{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <form action="" method="get">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" name="coupon" value="{{coupon}}" id="coupon_id" placeholder="Coupon Code" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" name="start" value="{{start|safe}}" autocomplete="off" required id="start" placeholder="Start Date"
+                                class="form-control form-control-sm datetimepicker-input" data-toggle="datetimepicker"
+                                data-target="#start" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" name="end" value="{{end | safe}}" autocomplete="off" required id="end" placeholder="End Date"
+                                class="form-control form-control-sm datetimepicker-input" data-toggle="datetimepicker"
+                                data-target="#end" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <input type="submit" value="Filter" name="submit" class="btn btn-info btn-sm">
+                        <a href="{% url 'partner:commissions' %}" class="btn btn-dark btn-sm">Reset</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-borderless table-hover">
+                    <thead>
+                        <tr>
+                            <th>Coupon Code</th>
+                            <th>Amount (GHS)</th>
+                            <!-- <th>Status</th> -->
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for object in page_obj %}
+                        <tr>
+                            <td>{{object.coupon_code}}</td>
+                            <td>{{object.amount}}</td>
+                            {% comment %} <td>{{object.get_status_display}}</td> {% endcomment %}
+                            <td>{{object.created_at}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th>{{total}}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer clearfix">
+            <span>Showing {{page_obj.start_index}}-{{page_obj.end_index}}  of {{object_count}} Records</span>
+            
+            <ul class="pagination pagination-sm m-0 float-right">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?coupon={{coupon}}&start={{start|safe}}&end={{end|safe}}&page=1">&laquo;</a></li>
+                    <li class="page-item"><a class="page-link" href="?coupon={{coupon}}&start={{start|safe}}&end={{end|safe}}&page={{page_obj.previous_page_number}}">1</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" disabled aria-disabled="true" href="#">&laquo;</a></li>
+                {% endif %}
+                <li class="page-item"><a class="page-link" disabled href="#">{{page_obj.number}}</a></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?coupon={{coupon}}&start={{start|safe}}&end={{end|safe}}&page={{page_obj.next_page_number}}">{{page_obj.next_page_number}}</a></li>
+                    <li class="page-item"><a class="page-link" href="?coupon={{coupon}}&start={{start|safe}}&end={{end|safe}}&page={{page_obj.next_page_number}}">&raquo;</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" disabled aria-disabled="true" href="#">&raquo;</a></li>
+                {% endif %}
+                <!-- <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">&raquo;</a></li> -->
+            </ul>
+          </div>
+    </div>
+</div>
+{% endblock content %}
+{% block js %}
+<script>
+    $(function () {
+        $('[data-mask]').inputmask()
+        //Date picker
+        $('#start').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        $('#end').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });
+    });
+</script>
+{% endblock js %}

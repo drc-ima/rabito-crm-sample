@@ -18,10 +18,15 @@ def branch(branch_code):
 
 
 @register.simple_tag
-def partner(user):
-    try:
-        return Partner.objects.get(partner_user=user)
-    except Partner.DoesNotExist: return None
+def partner(user=None, code=None):
+    if user:
+        try:
+            return Partner.objects.get(partner_user=user)
+        except Partner.DoesNotExist: return None
+    elif code:
+        try:
+            return Partner.objects.get(code=code)
+        except Partner.DoesNotExist: return None
 
 
 @register.simple_tag

@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     "apps.partner",
     "apps.patient",
     "apps.schedule",
-    "apps.user"
+    "apps.user",
+    'django_filters',
 ]
 
 MIDDLEWARE = [

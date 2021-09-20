@@ -1,5 +1,6 @@
+from apps.commission.models import Commission
 from django.http.response import JsonResponse
-from apps.partner.models import Coupon, CouponStatus
+from apps.partner.models import Coupon, CouponStatus, Partner
 from apps.feedback.models import Feedback, FeedbackResponse
 from utils import codes
 from utils.decorators import crm_required, role_permission_required
@@ -119,6 +120,19 @@ def add(request):
                         created_by=request.user
                     )
 
+                    try:
+                        partner = Partner.objects.get(partner_user=coupon.created_by)
+                    except:pass
+
+                    Commission.objects.create(
+                        partner_code=partner.code,
+                        patient_id=patient.code,
+                        coupon_code=coupon.code,
+                        amount=coupon.commission,
+                        status=1,
+                        created_by=request.user
+                    )
+
                     coupon.save()
                 except Coupon.DoesNotExist:pass
         
@@ -166,6 +180,19 @@ def patient_details(request, uuid):
                         cs = CouponStatus.objects.create(
                             coupon=coupon,
                             status=2,
+                            created_by=request.user
+                        )
+
+                        try:
+                            partner = Partner.objects.get(partner_user=coupon.created_by)
+                        except:pass
+
+                        Commission.objects.create(
+                            partner_code=partner.code,
+                            patient_id=patient.code,
+                            coupon_code=coupon.code,
+                            amount=coupon.commission,
+                            status=1,
                             created_by=request.user
                         )
                         coupon.save()

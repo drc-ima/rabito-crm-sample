@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
     <!-- icheck bootstrap -->
     <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static '' %}plugins/toastr/toastr.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
 </head>
@@ -27,17 +28,6 @@
             </div>
             <div class="card-body">
                 <p class="login-box-msg">{%block desc %}Signin to start your session{% endblock %}</p>
-                {% if messages %}
-                  <div class="alert alert-danger alert-dismissible small">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <h5><i class="icon fas fa-ban"></i> Error!</h5>
-                    <ul>
-                        {% for message in messages %}
-                          <li>{{message}}</li>
-                        {% endfor %}
-                    </ul>
-                  </div>
-                {% endif %}
                 
                 {% block content %}
                 <form action="" method="post">
@@ -95,8 +85,28 @@
     <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
     <!-- Bootstrap 4 -->
     <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static '' %}plugins/toastr/toastr.min.js"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+    <script>
+    // var Toast = Swal.mixin({
+    //   toast: true,
+    //   position: 'top-end',
+    //   showConfirmButton: true,
+    //   timer: 10000
+    // });
+    {% if messages %}
+    {% for message in messages %}
+    // Toast.fire({
+    //     icon: '{{message.tags}}',
+    //     title: '{{message}}'
+    //   })
+    toastr.{{message.tags}}('{{message}}')
+    {% endfor %}
+    {% endif %}
+      
+    
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,7 @@
+{% if user.user_type == 'AD' %}
+{% include 'crm/403.html' %}
+{% elif user.user_type == 'PU'%}
+{% include 'partners/403.html' %}
+{% elif user.user_type == 'MU' or user.user_type == 'MAU'%}
+{% include 'marketers/403.html' %}
+{% endif %}

@@ -156,6 +156,7 @@ REGIONS = [
 
 
 class Branch(models.Model):
+    slug = models.SlugField(max_length=200, blank=True, null=True, unique=True)
     code = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
     region = models.CharField(max_length=255, blank=True, null=True, choices=REGIONS)

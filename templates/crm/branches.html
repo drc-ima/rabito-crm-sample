@@ -17,7 +17,7 @@
                 <div class="list-group-flush">
                     {% for branch in branches %}
                     <div class="list-group-item">
-                        {{ branch.code }}. {{branch.description}}
+                        <a href="{% url 'user:branch-details' branch.slug %}">{{ branch.code }}. {{branch.description}}</a>
                     </div>
                     
                     {% endfor %}

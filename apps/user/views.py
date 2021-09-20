@@ -1,6 +1,8 @@
+from django.template import loader
+from django.template.exceptions import TemplateDoesNotExist
 from apps.partner.models import Coupon, Partner
 from utils import codes
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseForbidden
 from utils.decorators import crm_required, role_permission_required
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
@@ -42,13 +44,39 @@ def bad_request(request, exception=None):
     return response
 
 
-@login_required()
-def http_forbidden(request, exception=None):
-    response = HttpResponse(
-        template_name='403.html',
-        status=403
-        )
-    return response
+# @login_required()
+# def permission_denied(request, exception=None):
+    
+#     response = render(
+#         request,
+#         template_name='crm/403.html' if request.user.user_type == 'AD' else 'marketers/403.html' if request.user.user_type == 'MU' or request.user.user_type == 'MAU' else 'patners/403.html',
+#         status=403
+#         )
+#     return response
+# def permission_denied(request, exception):
+#     """
+#     Permission denied (403) handler.
+
+#     Templates: :template:`403.html`
+#     Context: None
+
+#     If the template does not exist, an Http403 response containing the text
+#     "403 Forbidden" (as per RFC 7231) will be returned.
+#     """
+#     template_name = 'crm/403.html' if request.user.user_type == 'AD' else 'marketers/403.html' if request.user.user_type == 'MU' or request.user.user_type == 'MAU' else 'patners/403.html'
+#     try:
+#         template = loader.get_template(template_name)
+#     except TemplateDoesNotExist:
+#         if template_name != template_name:
+#             # Reraise if it's a missing custom template.
+#             raise
+#         return HttpResponseForbidden(
+#             "ERROR_PAGE_TEMPLATE % {'title': '403 Forbidden', 'details': ''}",
+#             content_type='text/html',
+#         )
+#     return HttpResponseForbidden(
+#         template.render(request=request, context={'exception': str(exception)})
+#     )
 
 
 @login_required
@@ -129,6 +157,8 @@ def user_login(request):
 
             redirect_url = redirect_to if url_is_safe else ''
 
+            messages.success(request, f'Login successful. Welcome back {user.get_full_name()}')
+
             return redirect(redirect_url) if redirect_url else redirect('user:dashboard') if user.user_type == 'AD' else redirect('marketer:dashboard') if user.user_type == 'MU' or user.user_type == 'MAU' else redirect('partner:dashboard')
 
         except:
@@ -163,13 +193,37 @@ def branches(request):
 
             code = codes.branch(description, '{0:03}'.format(count))
 
-            Branch.objects.create(region=region, code=code, description=description, created_by=request.user)
+            Branch.objects.create(
+                region=region, 
+                code=code, 
+                description=description, 
+                created_by=request.user,
+                slug="-".join([slugify(description), code])
+            )
 
             return redirect('user:branches')
 
         else:
             return redirect('permission-error')
     return render(request, 'crm/branches.html', context)
+
+
+@login_required(login_url='login')
+@crm_required(redirect_url='permission-error')
+@role_permission_required("view_branch", 'permission-error')
+def branch_details(request, slug):
+    branch = None
+
+    try:
+        branch = Branch.objects.get(slug=slug)
+    except Branch.DoesNotExist:pass
+
+    context = {
+        'object': branch
+    }
+
+    return render(request, 'crm/branch_details.html', context)
+
 
 
 @login_required(login_url='login')
@@ -658,7 +712,7 @@ def add_user(request):
 def user_logout(request):
 
     redirect_to = None
-    if request.user.user_type =='AD' or request.user.user_type == 'MU':
+    if request.user.user_type =='AD' or request.user.user_type == 'MU' or request.user.user_type == 'PU' or request.user.user_type == 'MAU':
         redirect_to = redirect('login')
     logout(request)
 

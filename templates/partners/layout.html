@@ -19,6 +19,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
     <!-- daterange picker -->
   <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
+  <link rel="stylesheet" href="{% static '' %}plugins/toastr/toastr.min.css">
   <!-- Tempusdominus Bootstrap 4 -->
   <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
     <!-- Theme style -->
@@ -50,7 +51,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             <a href="{% url 'partner:coupons' %}" class="nav-link {% block coups %}{% endblock %}">Coupons</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">Commissions</a>
+                            <a href="{% url 'partner:commissions' %}" class="nav-link {% block comm%}{% endblock %}">Commissions</a>
                         </li>
                         
                     </ul>
@@ -58,7 +59,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
                 <!-- Right navbar links -->
                 <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
-                    
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">{{user.get_full_name}}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{%url 'logout'%}" class="nav-link">Logout</a>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -129,11 +135,31 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+    <script src="{% static '' %}plugins/toastr/toastr.min.js"></script>
     <!-- Tempusdominus Bootstrap 4 -->
     <script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
     <!-- AdminLTE for demo purposes -->
     <!-- <script src="../../dist/js/demo.js"></script> -->
     {% block js %}{% endblock js %}
+    <script>
+    // var Toast = Swal.mixin({
+    //   toast: true,
+    //   position: 'top-end',
+    //   showConfirmButton: true,
+    //   timer: 10000
+    // });
+    {% if messages %}
+    {% for message in messages %}
+    // Toast.fire({
+    //     icon: '{{message.tags}}',
+    //     title: '{{message}}'
+    //   })
+    toastr.{{message.tags}}('{{message}}')
+    {% endfor %}
+    {% endif %}
+      
+    
+    </script>
 </body>
 
 </html>

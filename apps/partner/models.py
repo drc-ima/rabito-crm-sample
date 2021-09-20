@@ -28,9 +28,9 @@ class Partner(models.Model):
 COUPON_STATUS = [
     (1, 'Generated'),
     (2, 'Admitted'),
-    (3, 'Commissioned'),
-    (4, 'Approved'),
-    (5, 'Cancelled')
+    # (3, ''),
+    (3, 'Approved'),
+    (4, 'Cancelled')
 ]
 
 
